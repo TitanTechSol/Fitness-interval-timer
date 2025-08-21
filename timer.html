@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FIT</title>
+<style>
+  :root { font-family: system-ui, sans-serif; }
+  body { display:flex; min-height:100svh; align-items:center; justify-content:center; background:#0f172a; color:#e2e8f0; margin:0; padding:0; overflow:hidden; }
+  .main-card { position: relative; background:#111827; padding:24px; border-radius:16px; box-shadow: 0 8px 30px rgba(0,0,0,.35); width:500px; overflow:hidden; }
+  h1 { margin:0 0 10px; font-size:1.15rem; color:#93c5fd; font-weight:600; }
+  .time { font-variant-numeric: tabular-nums; font-size:3.2rem; text-align:center; margin:6px 0 12px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  button, input { font:inherit; padding:10px 14px; border-radius:10px; border:1px solid #334155; background:#1f2937; color:#e5e7eb; }
+  button:hover { filter:brightness(1.1); cursor:pointer; }
+  .settings-btn { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; padding: 6px; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:#0b1324; border:1px solid #223; color:#9ca3af; font-size:.9rem; }
+  .muted { opacity:.75 }
+  .stack { display:grid; gap:8px; }
+  .footer { margin-top:10px; display:flex; justify-content:space-between; align-items:center; font-size:.9rem; color:#9ca3af; }
+  .warn { color:#fca5a5; }
+</style>
+</head>
+<body>
+  <div class="main-card">
+    <button id="settings" class="settings-btn">⚙️</button>
+    
+    <!-- Main Timer View -->
+    <div id="mainView">
+      <h1>FIT</h1>
+      <div class="time" id="display">10:00</div>
+      <div class="stack">
+        <div class="row">
+          <button id="start">Start</button>
+          <button id="pause" disabled>Pause</button>
+          <button id="stop">Stop</button>
+        </div>
+      </div>
+      <div class="footer">
+        <div>Intervals completed: <strong id="laps">0</strong></div>
+        <div class="muted">Reset all, resets the counter.</div>
+      </div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="settingsView" style="display: none;">
+      <h1>Settings</h1>
+      <div class="stack" style="margin-top: 20px;">
+        <div class="row">
+          <span class="pill">
+            Length:
+            <input id="minutes" type="number" min="1" max="120" value="10" style="width:4.5rem" />
+            min
+          </span>
+          <label class="pill">
+            <input id="randomMode" type="checkbox" /> Random (7-12 min)
+          </label>
+        </div>
+        
+        <div class="row">
+          <label class="pill">
+            <input id="sound" type="checkbox" checked /> Sound
+          </label>
+          <label class="pill">
+            <input id="notify" type="checkbox" /> Desktop notice
+          </label>
+        </div>
+        
+        <div class="row">
+          <button id="test">Test Sound</button>
+          <button id="reset">Reset All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio elements for alarm sequence -->
+  <audio id="startSound" preload="auto">
+    <source src="sounds/Start.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="reasonSound" preload="auto"></audio>
+  <audio id="punishmentSound" preload="auto"></audio>
+
+<script>
+(() => {
+  const display = document.getElementById('display');
+  const lapsEl  = document.getElementById('laps');
+  const startBtn= document.getElementById('start');
+  const pauseBtn= document.getElementById('pause');
+  const stopBtn = document.getElementById('stop');
+  const settingsBtn = document.getElementById('settings');
+  const mainView = document.getElementById('mainView');
+  const settingsView = document.getElementById('settingsView');
+  const resetBtn= document.getElementById('reset');
+  const testBtn = document.getElementById('test');
+  const minsInp = document.getElementById('minutes');
+  const randomModeCb = document.getElementById('randomMode');
+  const soundCb = document.getElementById('sound');
+  const notifyCb= document.getElementById('notify');
+
+  let totalSec = 10 * 60;     // default 10 min
+  let remaining = totalSec;
+  let timer = null;
+  let laps = 0;
+  let startAudio = null;
+  let reasonAudio = null;
+  let punishmentAudio = null;
+  const randomMinutes = [7, 8, 9, 10, 11, 12]; // Random timer durations
+  // Dynamically load audio files from folders using Node.js
+  const fs = require('fs');
+  const path = require('path');
+  let reasonFiles = [];
+  let punishmentFiles = [];
+
+  // Load audio files from folders
+  function loadAudioFiles() {
+    try {
+      const reasonPath = path.join(__dirname, 'sounds', 'Reason');
+      const punishmentPath = path.join(__dirname, 'sounds', 'Punishment');
+      
+      reasonFiles = fs.readdirSync(reasonPath).filter(file => file.endsWith('.mp3'));
+      punishmentFiles = fs.readdirSync(punishmentPath).filter(file => file.endsWith('.mp3'));
+      
+      console.log(`Loaded ${reasonFiles.length} reason files and ${punishmentFiles.length} punishment files`);
+    } catch (error) {
+      console.error('Error loading audio files:', error);
+      // Fallback to empty arrays if folders can't be read
+      reasonFiles = [];
+      punishmentFiles = [];
+    }
+  }
+
+  // Initialize audio file lists
+  loadAudioFiles();
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  }
+  function render() { display.textContent = fmt(remaining); }
+
+  function getRandomDuration() {
+    const randomIndex = Math.floor(Math.random() * randomMinutes.length);
+    return randomMinutes[randomIndex] * 60;
+  }
+
+  function setLengthFromInput() {
+    const m = Math.max(1, Math.min(120, parseInt(minsInp.value || '10', 10)));
+    return m * 60;
+  }
+
+  function getCurrentDuration() {
+    return randomModeCb.checked ? getRandomDuration() : setLengthFromInput();
+  }
+
+  function beep() {
+    if (!soundCb.checked) return;
+    
+    // Check if we have audio files loaded
+    if (reasonFiles.length === 0 || punishmentFiles.length === 0) {
+      console.warn('No audio files loaded');
+      return;
+    }
+    
+    // Initialize audio elements if not already done
+    if (!startAudio) {
+      startAudio = document.getElementById('startSound');
+      reasonAudio = document.getElementById('reasonSound');
+      punishmentAudio = document.getElementById('punishmentSound');
+    }
+    
+    // Select random files
+    const randomReason = reasonFiles[Math.floor(Math.random() * reasonFiles.length)];
+    const randomPunishment = punishmentFiles[Math.floor(Math.random() * punishmentFiles.length)];
+    
+    // Set sources for the random files
+    reasonAudio.src = `sounds/Reason/${randomReason}`;
+    punishmentAudio.src = `sounds/Punishment/${randomPunishment}`;
+    
+    // Play sequence: Start -> Reason -> Punishment
+    playAudioSequence();
+  }
+  
+  function playAudioSequence() {
+    try {
+      startAudio.currentTime = 0;
+      
+      // Play start sound first
+      startAudio.play().then(() => {
+        // When start finishes, play reason
+        startAudio.addEventListener('ended', () => {
+          reasonAudio.currentTime = 0;
+          reasonAudio.play().then(() => {
+            // When reason finishes, play punishment
+            reasonAudio.addEventListener('ended', () => {
+              punishmentAudio.currentTime = 0;
+              punishmentAudio.play().catch(e => console.log('Punishment audio play failed:', e));
+            }, { once: true });
+          }).catch(e => console.log('Reason audio play failed:', e));
+        }, { once: true });
+      }).catch(e => console.log('Start audio play failed:', e));
+      
+    } catch (e) {
+      console.log('Audio sequence error:', e);
+    }
+  }
+
+  function notify() {
+    if (!notifyCb.checked) return;
+    if (Notification.permission === 'granted') {
+      new Notification('Timer', { body: '10 minutes are up!' });
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(p => { if (p==='granted') new Notification('Timer ready'); });
+    }
+  }
+
+  function tick() {
+    remaining--;
+    render();
+    document.title = `${fmt(remaining)} — Timer`;
+    if (remaining <= 0) {
+      laps++;
+      lapsEl.textContent = String(laps);
+      beep(); notify();
+      totalSec = getCurrentDuration(); // Get duration based on current mode
+      remaining = totalSec; // auto-repeat with new time
+      render();
+    }
+  }
+
+  function start() {
+    if (timer) return;
+    // Use appropriate duration mode if starting fresh, otherwise keep current remaining time
+    if (remaining === totalSec) {
+      totalSec = getCurrentDuration();
+      remaining = totalSec;
+      render();
+    }
+    timer = setInterval(tick, 1000);
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+  }
+  function pause() {
+    if (!timer) return;
+    clearInterval(timer); timer = null;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+  }
+  
+  function stop() {
+    pause();
+    totalSec = getCurrentDuration();
+    remaining = totalSec;
+    render();
+  }
+  
+  function reset() {
+    pause();
+    // Reset all settings to defaults
+    minsInp.value = '10';
+    randomModeCb.checked = false;
+    soundCb.checked = true;
+    notifyCb.checked = false;
+    laps = 0;
+    lapsEl.textContent = String(laps);
+    // Reset timer
+    totalSec = getCurrentDuration();
+    remaining = totalSec;
+    render();
+  }
+  
+  function toggleSettings() {
+    if (mainView.style.display === 'none') {
+      // Show main view, hide settings
+      mainView.style.display = 'block';
+      settingsView.style.display = 'none';
+    } else {
+      // Show settings, hide main view
+      mainView.style.display = 'none';
+      settingsView.style.display = 'block';
+    }
+  }
+
+  // wire up
+  totalSec = getCurrentDuration(); // Initialize with appropriate duration
+  remaining = totalSec;
+  render();
+  minsInp.addEventListener('change', () => {
+    if (!randomModeCb.checked) {
+      totalSec = setLengthFromInput();
+      remaining = totalSec;
+      render();
+    }
+  });
+  randomModeCb.addEventListener('change', () => {
+    totalSec = getCurrentDuration();
+    remaining = totalSec;
+    render();
+  });
+  startBtn.addEventListener('click', start);
+  pauseBtn.addEventListener('click', pause);
+  stopBtn.addEventListener('click', stop);
+  resetBtn.addEventListener('click', reset);
+  settingsBtn.addEventListener('click', toggleSettings);
+  testBtn.addEventListener('click', () => {
+    beep(); // Test the audio sequence
+  });
+
+  // Initialize audio elements on first user interaction
+  window.addEventListener('click', () => {
+    if (!startAudio && soundCb.checked) {
+      startAudio = document.getElementById('startSound');
+      reasonAudio = document.getElementById('reasonSound');
+      punishmentAudio = document.getElementById('punishmentSound');
+    }
+  }, { once: true });
+})();
+</script>
+</body>
+</html>
