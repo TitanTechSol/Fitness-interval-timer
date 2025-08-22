@@ -115,15 +115,21 @@ class SpeechManager {
     }
 
     try {
+      console.log('Loading message file:', filePath);
       const content = await window.electronAPI.readTextFile(filePath);
+      console.log('Loaded content:', content);
       
       // Parse the markdown file
-      return content
+      const messages = content
         .split('\n')
         .map(line => line.trim())
         .filter(line => line && !line.startsWith('#') && !line.startsWith('//'))
         .filter(line => line.length > 0);
+      
+      console.log('Parsed messages:', messages);
+      return messages;
     } catch (error) {
+      console.error('Error loading message file:', filePath, error);
       throw error;
     }
   }

@@ -126,7 +126,7 @@ The app uses a structured template system: **[Check-in] â†’ [Action Detection] â
 - **Full Editor**: Multi-line text editing with real-time stats
 - **Quick Add**: Rapid single-message addition with examples
 - **Test Messages**: Preview messages with current TTS voice
-- **Archive System**: Restore original messages anytime
+- **Archive System**: Restore original messages anytime - Archive automatically updates with user changes
 
 ### Voice Customization
 - **Voice Selection**: Choose from Windows built-in voices

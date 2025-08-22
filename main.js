@@ -38,10 +38,20 @@ ipcMain.handle('open-sounds-folder', () => {
 // Handle text file reading
 ipcMain.handle('read-text-file', async (event, filePath) => {
   try {
-    const content = await fs.readFile(filePath, 'utf-8');
+    console.log('Reading text file:', filePath);
+    console.log('__dirname:', __dirname);
+    
+    // Handle relative paths properly for packaged apps
+    const fullPath = path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
+    console.log('Full path:', fullPath);
+    
+    const content = await fs.readFile(fullPath, 'utf-8');
+    console.log('File content length:', content.length);
     return content;
   } catch (error) {
     console.error('Error reading text file:', error);
+    console.error('Attempted path:', filePath);
+    console.error('Full path:', path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath));
     throw error;
   }
 });
