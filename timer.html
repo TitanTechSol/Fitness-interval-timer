@@ -99,6 +99,20 @@
   .stack { display:grid; gap:8px; }
   .footer { margin-top:10px; display:flex; justify-content:space-between; align-items:center; font-size:.9rem; color:var(--text-secondary); }
   .warn { color:var(--warn); }
+  .settings-nav { display: flex; gap: 8px; margin-bottom: 16px; }
+  .nav-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer; font-size: 0.9rem; }
+  .nav-btn.active { background: var(--text-accent); color: var(--bg-primary); }
+  .settings-page { display: none; }
+  .settings-page.active { display: block; }
+  .slider-control { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border); }
+  .slider-switch { position: relative; width: 44px; height: 24px; background: var(--border); border-radius: 12px; cursor: pointer; transition: background 0.3s; }
+  .slider-switch.active { background: var(--text-accent); }
+  .slider-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.3s; }
+  .slider-switch.active::after { transform: translateX(20px); }
+  .drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin: 8px 0; }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--text-accent); background: var(--bg-primary); }
+  .drop-zone.has-files { border-color: var(--text-accent); background: var(--bg-primary); }
+  .audio-count-selector { width: 80px; }
   .time-input-group { display: flex; align-items: center; gap: 4px; }
   .time-input { width: 3rem; text-align: center; }
   .time-label { font-size: 0.85rem; color: var(--text-secondary); }
@@ -109,6 +123,17 @@
   .help-section p { margin:0 0 8px; font-size:.85rem; line-height:1.4; }
   .help-section ol { margin:0; padding-left:20px; font-size:.85rem; line-height:1.4; }
   .theme-selector { width: 140px; }
+    
+    /* Notification animations */
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
 </style>
 </head>
 <body>
@@ -135,119 +160,171 @@
     <!-- Settings View -->
     <div id="settingsView" style="display: none;">
       <h1>Settings</h1>
-      <div class="stack" style="margin-top: 20px;">
-        <div class="row">
-          <span class="pill">
-            Length:
-            <div class="time-input-group">
-              <input id="hours" type="number" min="0" max="23" value="0" class="time-input" />
-              <span class="time-label">h</span>
-              <input id="minutes" type="number" min="0" max="59" value="10" class="time-input" />
-              <span class="time-label">m</span>
-              <input id="seconds" type="number" min="0" max="59" value="0" class="time-input" />
-              <span class="time-label">s</span>
-            </div>
-          </span>
-        </div>
-        
-        <div class="row">
-          <label class="pill">
-            <input id="randomMode" type="checkbox" /> Random time between:
-          </label>
-        </div>
-        
-        <div id="randomRangeInputs" class="row" style="display: none;">
-          <span class="pill">
-            <div class="random-range">
+      
+      <!-- Settings Navigation -->
+      <div class="settings-nav">
+        <button class="nav-btn active" data-page="timer">Timer</button>
+        <button class="nav-btn" data-page="audio">Audio</button>
+      </div>
+      
+      <!-- Timer Settings Page -->
+      <div id="timerPage" class="settings-page active">
+        <div class="stack" style="margin-top: 20px;">
+          <div class="row">
+            <span class="pill">
+              Length:
               <div class="time-input-group">
-                <input id="randomMinHours" type="number" min="0" max="23" value="0" class="time-input" />
+                <input id="hours" type="number" min="0" max="23" value="0" class="time-input" />
                 <span class="time-label">h</span>
-                <input id="randomMinMinutes" type="number" min="0" max="59" value="7" class="time-input" />
+                <input id="minutes" type="number" min="0" max="59" value="10" class="time-input" />
                 <span class="time-label">m</span>
-                <input id="randomMinSeconds" type="number" min="0" max="59" value="0" class="time-input" />
+                <input id="seconds" type="number" min="0" max="59" value="0" class="time-input" />
                 <span class="time-label">s</span>
               </div>
-              <span>-</span>
-              <div class="time-input-group">
-                <input id="randomMaxHours" type="number" min="0" max="23" value="0" class="time-input" />
-                <span class="time-label">h</span>
-                <input id="randomMaxMinutes" type="number" min="0" max="59" value="12" class="time-input" />
-                <span class="time-label">m</span>
-                <input id="randomMaxSeconds" type="number" min="0" max="59" value="0" class="time-input" />
-                <span class="time-label">s</span>
+            </span>
+          </div>
+          
+          <div class="slider-control">
+            <span>Random time between:</span>
+            <div class="slider-switch active" id="randomModeSwitch"></div>
+          </div>
+          
+          <div id="randomRangeInputs" class="row">
+            <span class="pill">
+              <div class="random-range">
+                <div class="time-input-group">
+                  <input id="randomMinHours" type="number" min="0" max="23" value="0" class="time-input" />
+                  <span class="time-label">h</span>
+                  <input id="randomMinMinutes" type="number" min="0" max="59" value="7" class="time-input" />
+                  <span class="time-label">m</span>
+                  <input id="randomMinSeconds" type="number" min="0" max="59" value="0" class="time-input" />
+                  <span class="time-label">s</span>
+                </div>
+                <span>-</span>
+                <div class="time-input-group">
+                  <input id="randomMaxHours" type="number" min="0" max="23" value="0" class="time-input" />
+                  <span class="time-label">h</span>
+                  <input id="randomMaxMinutes" type="number" min="0" max="59" value="12" class="time-input" />
+                  <span class="time-label">m</span>
+                  <input id="randomMaxSeconds" type="number" min="0" max="59" value="0" class="time-input" />
+                  <span class="time-label">s</span>
+                </div>
               </div>
-            </div>
-          </span>
+            </span>
+          </div>
+          
+          <div class="slider-control">
+            <span>Sound</span>
+            <div class="slider-switch active" id="soundSwitch"></div>
+          </div>
+          
+          <div class="slider-control">
+            <span>Desktop notifications</span>
+            <div class="slider-switch" id="notifySwitch"></div>
+          </div>
+          
+          <div class="slider-control">
+            <span>Always on top</span>
+            <div class="slider-switch" id="alwaysOnTopSwitch"></div>
+          </div>
+          
+          <div class="row">
+            <span class="pill">
+              Volume:
+              <input id="volumeSlider" type="range" min="0" max="100" value="100" class="volume-slider" />
+              <span id="volumeDisplay">100%</span>
+            </span>
+          </div>
+          
+          <div class="row">
+            <span class="pill">
+              Theme:
+              <select id="themeSelector" class="theme-selector">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+                <option value="blue">Blue</option>
+                <option value="yellow">Yellow</option>
+                <option value="orange">Orange</option>
+              </select>
+            </span>
+          </div>
+          
+          <div class="row">
+            <button id="reset">Reset All</button>
+          </div>
         </div>
-        
-        <div class="row">
-          <label class="pill">
-            <input id="sound" type="checkbox" checked /> Sound
-          </label>
-          <label class="pill">
-            <input id="notify" type="checkbox" /> Desktop notice
-          </label>
-          <label class="pill">
-            <input id="alwaysOnTop" type="checkbox" /> Always on top
-          </label>
-        </div>
-        
-        <div class="row">
-          <span class="pill">
-            Volume:
-            <input id="volumeSlider" type="range" min="0" max="100" value="100" class="volume-slider" />
-            <span id="volumeDisplay">100%</span>
-          </span>
-        </div>
-        
-        <div class="row">
-          <span class="pill">
-            Theme:
-            <select id="themeSelector" class="theme-selector">
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-              <option value="blue">Blue</option>
-              <option value="yellow">Yellow</option>
-              <option value="orange">Orange</option>
-            </select>
-          </span>
-        </div>
-        
-        <div class="row">
-          <button id="test">Test Sound</button>
-          <button id="openSoundsFolder">Open Audio Folder</button>
-          <button id="reset">Reset All</button>
-        </div>
-        
-        <div class="help-section">
-          <h3>📁 Adding Custom Audio Files</h3>
-          <p>You can add your own audio files to customize the timer sounds:</p>
-          <ol>
-            <li>Click "Open Audio Folder" above to open the sounds directory</li>
-            <li>Navigate to either "Reason" or "Punishment" folder</li>
-            <li>Add your .mp3 files to these folders</li>
-            <li>Restart the app to load new audio files</li>
-            <li>Use "Test Sound" to preview your custom sounds</li>
-          </ol>
-          <p><strong>Tip:</strong> Files should be in .mp3 format for best compatibility!</p>
+      </div>
+      
+      <!-- Audio Settings Page -->
+      <div id="audioPage" class="settings-page">
+        <div class="stack" style="margin-top: 20px;">
+          <div class="row">
+            <span class="pill">
+              Audio Count:
+              <select id="audioCountSelector" class="audio-count-selector">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+              </select>
+            </span>
+          </div>
+          
+          <div class="drop-zone" id="audio1DropZone">
+            <h4>Audio 1 - "What are you doing?"</h4>
+            <p>Drop your main prompt audio file here (.mp3)</p>
+            <small id="audio1Status">Current: Audio1.mp3</small>
+          </div>
+          
+          <div class="drop-zone" id="audio2DropZone">
+            <h4>Audio 2 - Situation (Random)</h4>
+            <p>Drop situation audio files here (.mp3)</p>
+            <small id="audio2Status">Current: Multiple files</small>
+          </div>
+          
+          <div class="drop-zone" id="audio3DropZone">
+            <h4>Audio 3 - Action (Random)</h4>
+            <p>Drop action/workout audio files here (.mp3)</p>
+            <small id="audio3Status">Current: Multiple files</small>
+          </div>
+          
+          <div class="drop-zone" id="audio4DropZone">
+            <h4>Audio 4 - Extra (Random)</h4>
+            <p>Drop additional audio files here (.mp3)</p>
+            <small id="audio4Status">Current: Empty</small>
+          </div>
+          
+          <div class="row">
+            <button id="testAudio">Test Audio Sequence</button>
+            <button id="restoreBackup">Restore Backup Audios</button>
+            <button id="openSoundsFolder">Open Audio Folder</button>
+          </div>
+          
+          <div class="help-section">
+            <h3>🎵 Audio Configuration Guide</h3>
+            <p><strong>Audio Sequence:</strong> The timer plays 1-4 audio files in sequence based on your selection.</p>
+            <ol>
+              <li><strong>Audio 1:</strong> Main prompt (single file) - "What are you doing?"</li>
+              <li><strong>Audio 2:</strong> Situation context (random from folder) - "If you are sitting"</li>
+              <li><strong>Audio 3:</strong> Action command (random from folder) - "Do 10 pushups"</li>
+              <li><strong>Audio 4:</strong> Optional extra content (random from folder)</li>
+            </ol>
+            <p><strong>Drag & Drop:</strong> Simply drag .mp3 files into the drop zones above.</p>
+            <p><strong>Backup:</strong> Original audio files are safely stored and can be restored anytime.</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Audio elements for alarm sequence -->
-  <audio id="startSound" preload="auto">
-    <source src="sounds/Start.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="reasonSound" preload="auto"></audio>
-  <audio id="punishmentSound" preload="auto"></audio>
+  <!-- No audio elements needed - we create them dynamically -->
 
 <script>
 (() => {
-  const { ipcRenderer } = require('electron');
+  // No need to require electron - using preload script
   
   const display = document.getElementById('display');
-  const lapsEl  = document.getElementById('laps');
+  const lapsEl = null; // Not used in current version
   const startBtn= document.getElementById('start');
   const pauseBtn= document.getElementById('pause');
   const stopBtn = document.getElementById('stop');
@@ -255,7 +332,11 @@
   const mainView = document.getElementById('mainView');
   const settingsView = document.getElementById('settingsView');
   const resetBtn= document.getElementById('reset');
-  const testBtn = document.getElementById('test');
+  
+  // Settings navigation
+  const timerPage = document.getElementById('timerPage');
+  const audioPage = document.getElementById('audioPage');
+  const navBtns = document.querySelectorAll('.nav-btn');
   
   // Time input elements
   const hoursInp = document.getElementById('hours');
@@ -263,7 +344,7 @@
   const secsInp = document.getElementById('seconds');
   
   // Random range elements
-  const randomModeCb = document.getElementById('randomMode');
+  const randomModeSwitch = document.getElementById('randomModeSwitch');
   const randomRangeInputs = document.getElementById('randomRangeInputs');
   const randomMinHours = document.getElementById('randomMinHours');
   const randomMinMinutes = document.getElementById('randomMinMinutes');
@@ -272,30 +353,46 @@
   const randomMaxMinutes = document.getElementById('randomMaxMinutes');
   const randomMaxSeconds = document.getElementById('randomMaxSeconds');
   
+  // Slider switches
+  const soundSwitch = document.getElementById('soundSwitch');
+  const notifySwitch = document.getElementById('notifySwitch');
+  const alwaysOnTopSwitch = document.getElementById('alwaysOnTopSwitch');
+  
   // Other controls
-  const soundCb = document.getElementById('sound');
-  const notifyCb= document.getElementById('notify');
-  const alwaysOnTopCb = document.getElementById('alwaysOnTop');
   const volumeSlider = document.getElementById('volumeSlider');
   const volumeDisplay = document.getElementById('volumeDisplay');
   const themeSelector = document.getElementById('themeSelector');
+  
+  // Audio controls
+  const audioCountSelector = document.getElementById('audioCountSelector');
+  const testAudioBtn = document.getElementById('testAudio');
+  const restoreBackupBtn = document.getElementById('restoreBackup');
   const openSoundsFolderBtn = document.getElementById('openSoundsFolder');
+  
+  // Drop zones for drag-and-drop
+  const audio1DropZone = document.getElementById('audio1DropZone');
+  const audio2DropZone = document.getElementById('audio2DropZone');
+  const audio3DropZone = document.getElementById('audio3DropZone');
+  const audio4DropZone = document.getElementById('audio4DropZone');
 
   let totalSec = 10 * 60;     // default 10 min
   let remaining = totalSec;
   let timer = null;
   let laps = 0;
-  let startAudio = null;
-  let reasonAudio = null;
-  let punishmentAudio = null;
   let masterVolume = 1.0; // 0.0 to 1.0
   
-  // Settings object to store all preferences
+  // Audio elements
+  let audio1 = null;    // Single file
+  let audio2 = null;    // Random from folder
+  let audio3 = null;    // Random from folder  
+  let audio4 = null;    // Random from folder
+  
+  // Settings object to store all preferences with new defaults
   const settings = {
     hours: 0,
-    minutes: 10,
+    minutes: 7,  // Changed from 10 to 7 for default random range
     seconds: 0,
-    randomMode: false,
+    randomMode: true,  // Changed to true by default
     randomMinHours: 0,
     randomMinMinutes: 7,
     randomMinSeconds: 0,
@@ -303,17 +400,19 @@
     randomMaxMinutes: 12,
     randomMaxSeconds: 0,
     sound: true,
-    notify: false,
+    notify: false,    // Changed to false by default
     alwaysOnTop: false,
     volume: 100,
-    theme: 'dark'
+    theme: 'dark',
+    audioCount: 3     // New setting for audio sequence count
   };
   
   // Dynamically load audio files from folders using Node.js
   const fs = require('fs');
   const path = require('path');
-  let reasonFiles = [];
-  let punishmentFiles = [];
+  let audio2Files = [];
+  let audio3Files = [];
+  let audio4Files = [];
 
   // Load and save settings to localStorage
   function loadSettings() {
@@ -333,7 +432,13 @@
     minsInp.value = settings.minutes;
     secsInp.value = settings.seconds;
     
-    randomModeCb.checked = settings.randomMode;
+    // Apply slider switches
+    randomModeSwitch.classList.toggle('active', settings.randomMode);
+    soundSwitch.classList.toggle('active', settings.sound);
+    notifySwitch.classList.toggle('active', settings.notify);
+    alwaysOnTopSwitch.classList.toggle('active', settings.alwaysOnTop);
+    
+    // Random range inputs
     randomMinHours.value = settings.randomMinHours;
     randomMinMinutes.value = settings.randomMinMinutes;
     randomMinSeconds.value = settings.randomMinSeconds;
@@ -341,11 +446,10 @@
     randomMaxMinutes.value = settings.randomMaxMinutes;
     randomMaxSeconds.value = settings.randomMaxSeconds;
     
-    soundCb.checked = settings.sound;
-    notifyCb.checked = settings.notify;
-    alwaysOnTopCb.checked = settings.alwaysOnTop;
+    // Other controls
     volumeSlider.value = settings.volume;
     themeSelector.value = settings.theme;
+    audioCountSelector.value = settings.audioCount;
     
     // Show/hide random range inputs
     randomRangeInputs.style.display = settings.randomMode ? 'flex' : 'none';
@@ -358,8 +462,41 @@
     document.body.className = settings.theme === 'dark' ? '' : `theme-${settings.theme}`;
     
     // Apply always on top
-    if (typeof ipcRenderer !== 'undefined') {
-      ipcRenderer.invoke('set-always-on-top', settings.alwaysOnTop);
+    if (window.electronAPI) {
+      window.electronAPI.setAlwaysOnTop(settings.alwaysOnTop);
+    }
+  }
+  
+  // Settings page navigation
+  function showSettingsPage(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.settings-page').forEach(page => {
+      page.classList.remove('active');
+    });
+    
+    // Remove active class from all nav buttons
+    navBtns.forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    // Show selected page and activate button
+    document.getElementById(pageId + 'Page').classList.add('active');
+    document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+  }
+  
+  // Slider switch toggle function
+  function toggleSlider(slider, setting) {
+    const isActive = !slider.classList.contains('active');
+    slider.classList.toggle('active', isActive);
+    updateSetting(setting, isActive);
+    
+    // Handle special cases
+    if (setting === 'randomMode') {
+      randomRangeInputs.style.display = isActive ? 'flex' : 'none';
+      // Update timer duration
+      totalSec = getCurrentDuration();
+      remaining = totalSec;
+      render();
     }
   }
 
@@ -407,19 +544,47 @@
   // Load audio files from folders
   function loadAudioFiles() {
     try {
-      const reasonPath = path.join(__dirname, 'sounds', 'Reason');
-      const punishmentPath = path.join(__dirname, 'sounds', 'Punishment');
+      const audio2Path = path.join(__dirname, 'sounds', 'Audio2');
+      const audio3Path = path.join(__dirname, 'sounds', 'Audio3');
+      const audio4Path = path.join(__dirname, 'sounds', 'Audio4');
       
-      reasonFiles = fs.readdirSync(reasonPath).filter(file => file.endsWith('.mp3'));
-      punishmentFiles = fs.readdirSync(punishmentPath).filter(file => file.endsWith('.mp3'));
+      // Load folder contents
+      audio2Files = fs.existsSync(audio2Path) ? fs.readdirSync(audio2Path).filter(file => file.endsWith('.mp3')) : [];
+      audio3Files = fs.existsSync(audio3Path) ? fs.readdirSync(audio3Path).filter(file => file.endsWith('.mp3')) : [];
+      audio4Files = fs.existsSync(audio4Path) ? fs.readdirSync(audio4Path).filter(file => file.endsWith('.mp3')) : [];
       
-      console.log(`Loaded ${reasonFiles.length} reason files and ${punishmentFiles.length} punishment files`);
+      console.log(`Loaded ${audio2Files.length} Audio2 files, ${audio3Files.length} Audio3 files, ${audio4Files.length} Audio4 files`);
+      
+      // Update UI status
+      updateAudioStatus();
     } catch (error) {
       console.error('Error loading audio files:', error);
-      // Fallback to empty arrays if folders can't be read
-      reasonFiles = [];
-      punishmentFiles = [];
+      audio2Files = [];
+      audio3Files = [];
+      audio4Files = [];
     }
+  }
+  
+  // Update audio status displays
+  function updateAudioStatus() {
+    const audio1Status = document.getElementById('audio1Status');
+    const audio2Status = document.getElementById('audio2Status');
+    const audio3Status = document.getElementById('audio3Status');
+    const audio4Status = document.getElementById('audio4Status');
+    
+    // Check if Audio1.mp3 exists
+    const audio1Exists = fs.existsSync(path.join(__dirname, 'sounds', 'Audio1.mp3'));
+    audio1Status.textContent = audio1Exists ? 'Current: Audio1.mp3' : 'No audio file found';
+    
+    audio2Status.textContent = `Current: ${audio2Files.length} files`;
+    audio3Status.textContent = `Current: ${audio3Files.length} files`;
+    audio4Status.textContent = `Current: ${audio4Files.length} files`;
+    
+    // Update drop zone appearance
+    audio1DropZone.classList.toggle('has-files', audio1Exists);
+    audio2DropZone.classList.toggle('has-files', audio2Files.length > 0);
+    audio3DropZone.classList.toggle('has-files', audio3Files.length > 0);
+    audio4DropZone.classList.toggle('has-files', audio4Files.length > 0);
   }
 
   // Initialize audio file lists
@@ -428,7 +593,7 @@
   function render() { display.textContent = fmt(remaining); }
 
   function getCurrentDuration() {
-    if (randomModeCb.checked) {
+    if (settings.randomMode) {
       return getRandomDuration();
     } else {
       const duration = setLengthFromInput();
@@ -438,64 +603,110 @@
   }
 
   function beep() {
-    if (!soundCb.checked) return;
+    if (!settings.sound) return;
     
-    // Check if we have audio files loaded
-    if (reasonFiles.length === 0 || punishmentFiles.length === 0) {
-      console.warn('No audio files loaded');
-      return;
-    }
-    
-    // Initialize audio elements if not already done
-    if (!startAudio) {
-      startAudio = document.getElementById('startSound');
-      reasonAudio = document.getElementById('reasonSound');
-      punishmentAudio = document.getElementById('punishmentSound');
-    }
-    
-    // Set volume for all audio elements
-    startAudio.volume = masterVolume;
-    reasonAudio.volume = masterVolume;
-    punishmentAudio.volume = masterVolume;
-    
-    // Select random files
-    const randomReason = reasonFiles[Math.floor(Math.random() * reasonFiles.length)];
-    const randomPunishment = punishmentFiles[Math.floor(Math.random() * punishmentFiles.length)];
-    
-    // Set sources for the random files
-    reasonAudio.src = `sounds/Reason/${randomReason}`;
-    punishmentAudio.src = `sounds/Punishment/${randomPunishment}`;
-    
-    // Play sequence: Start -> Reason -> Punishment
+    console.log(`Playing audio sequence: ${settings.audioCount} audios`);
     playAudioSequence();
   }
   
   function playAudioSequence() {
-    try {
-      startAudio.currentTime = 0;
+    let currentAudio = 1;
+    
+    function playNextAudio() {
+      if (currentAudio > settings.audioCount) {
+        console.log('Audio sequence complete');
+        return;
+      }
       
-      // Play start sound first
-      startAudio.play().then(() => {
-        // When start finishes, play reason
-        startAudio.addEventListener('ended', () => {
-          reasonAudio.currentTime = 0;
-          reasonAudio.play().then(() => {
-            // When reason finishes, play punishment
-            reasonAudio.addEventListener('ended', () => {
-              punishmentAudio.currentTime = 0;
-              punishmentAudio.play().catch(e => console.log('Punishment audio play failed:', e));
-            }, { once: true });
-          }).catch(e => console.log('Reason audio play failed:', e));
-        }, { once: true });
-      }).catch(e => console.log('Start audio play failed:', e));
+      let audioElement = null;
+      let audioPath = '';
       
-    } catch (e) {
-      console.log('Audio sequence error:', e);
+      switch (currentAudio) {
+        case 1:
+          // Audio 1 - single file
+          audioPath = path.join(__dirname, 'sounds', 'Audio1.mp3');
+          if (fs.existsSync(audioPath)) {
+            if (!audio1) {
+              audio1 = new Audio();
+            }
+            audio1.src = 'sounds/Audio1.mp3';
+            audio1.volume = masterVolume;
+            audioElement = audio1;
+          }
+          break;
+          
+        case 2:
+          // Audio 2 - random from folder
+          if (audio2Files.length > 0) {
+            const randomFile = audio2Files[Math.floor(Math.random() * audio2Files.length)];
+            if (!audio2) {
+              audio2 = new Audio();
+            }
+            audio2.src = `sounds/Audio2/${randomFile}`;
+            audio2.volume = masterVolume;
+            audioElement = audio2;
+          }
+          break;
+          
+        case 3:
+          // Audio 3 - random from folder
+          if (audio3Files.length > 0) {
+            const randomFile = audio3Files[Math.floor(Math.random() * audio3Files.length)];
+            if (!audio3) {
+              audio3 = new Audio();
+            }
+            audio3.src = `sounds/Audio3/${randomFile}`;
+            audio3.volume = masterVolume;
+            audioElement = audio3;
+          }
+          break;
+          
+        case 4:
+          // Audio 4 - random from folder
+          if (audio4Files.length > 0) {
+            const randomFile = audio4Files[Math.floor(Math.random() * audio4Files.length)];
+            if (!audio4) {
+              audio4 = new Audio();
+            }
+            audio4.src = `sounds/Audio4/${randomFile}`;
+            audio4.volume = masterVolume;
+            audioElement = audio4;
+          }
+          break;
+      }
+      
+      if (audioElement) {
+        console.log(`Playing audio ${currentAudio}`);
+        audioElement.currentTime = 0;
+        
+        audioElement.onended = () => {
+          currentAudio++;
+          setTimeout(playNextAudio, 200); // Small delay between audios
+        };
+        
+        audioElement.onerror = (e) => {
+          console.error(`Error playing audio ${currentAudio}:`, e);
+          currentAudio++;
+          setTimeout(playNextAudio, 200);
+        };
+        
+        audioElement.play().catch(e => {
+          console.error(`Failed to play audio ${currentAudio}:`, e);
+          currentAudio++;
+          setTimeout(playNextAudio, 200);
+        });
+      } else {
+        console.log(`No audio ${currentAudio} available, skipping`);
+        currentAudio++;
+        setTimeout(playNextAudio, 200);
+      }
     }
+    
+    playNextAudio();
   }
 
   function notify() {
-    if (!notifyCb.checked) return;
+    if (!settings.notifications) return;
     if (Notification.permission === 'granted') {
       new Notification('Timer', { body: '10 minutes are up!' });
     } else if (Notification.permission !== 'denied') {
@@ -606,8 +817,7 @@
   }
   
   function onRandomModeChange() {
-    const isRandom = randomModeCb.checked;
-    updateSetting('randomMode', isRandom);
+    const isRandom = settings.randomMode;
     randomRangeInputs.style.display = isRandom ? 'flex' : 'none';
     
     // Update timer duration
@@ -632,15 +842,15 @@
   async function onAlwaysOnTopChange() {
     const enabled = alwaysOnTopCb.checked;
     updateSetting('alwaysOnTop', enabled);
-    if (typeof ipcRenderer !== 'undefined') {
-      await ipcRenderer.invoke('set-always-on-top', enabled);
+    if (window.electronAPI) {
+      await window.electronAPI.setAlwaysOnTop(enabled);
     }
   }
   
   async function openSoundsFolder() {
-    if (typeof ipcRenderer !== 'undefined') {
+    if (window.electronAPI) {
       try {
-        await ipcRenderer.invoke('open-sounds-folder');
+        await window.electronAPI.openSoundsFolder();
       } catch (error) {
         console.error('Failed to open sounds folder:', error);
       }
@@ -650,6 +860,7 @@
   // Initialize
   loadSettings(); // Load saved settings first
   loadAudioFiles();
+  updateDropZoneStatus(); // Update drop zone visual status
   
   // wire up
   totalSec = getCurrentDuration(); // Initialize with appropriate duration
@@ -692,29 +903,167 @@
   randomMaxMinutes.addEventListener('change', updateRandomRangeSettings);
   randomMaxSeconds.addEventListener('change', updateRandomRangeSettings);
   
-  randomModeCb.addEventListener('change', onRandomModeChange);
-  
-  soundCb.addEventListener('change', () => {
-    updateSetting('sound', soundCb.checked);
-  });
-  
-  notifyCb.addEventListener('change', () => {
-    updateSetting('notify', notifyCb.checked);
-  });
-  
-  alwaysOnTopCb.addEventListener('change', onAlwaysOnTopChange);
   volumeSlider.addEventListener('input', onVolumeChange);
   themeSelector.addEventListener('change', onThemeChange);
+  audioCountSelector.addEventListener('change', (e) => {
+    settings.audioCount = parseInt(e.target.value);
+    localStorage.setItem('intervalTimerSettings', JSON.stringify(settings));
+  });
+
+  // Navigation event handlers
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pageId = btn.dataset.page;
+      showSettingsPage(pageId);
+    });
+  });
+  
+  // Slider switch event handlers
+  randomModeSwitch.addEventListener('click', () => {
+    toggleSlider(randomModeSwitch, 'randomMode');
+  });
+  
+  soundSwitch.addEventListener('click', () => {
+    toggleSlider(soundSwitch, 'sound');
+  });
+  
+  notifySwitch.addEventListener('click', () => {
+    toggleSlider(notifySwitch, 'notifications');
+  });
+  
+  alwaysOnTopSwitch.addEventListener('click', () => {
+    toggleSlider(alwaysOnTopSwitch, 'alwaysOnTop');
+    // Also call the IPC handler
+    if (window.electronAPI) {
+      window.electronAPI.setAlwaysOnTop(settings.alwaysOnTop);
+    }
+  });
   openSoundsFolderBtn.addEventListener('click', openSoundsFolder);
+  restoreBackupBtn.addEventListener('click', async () => {
+    if (confirm('This will restore the original audio files and delete any custom files you\'ve added. Continue?')) {
+      try {
+        const result = await window.electronAPI.restoreBackup();
+        if (result.success) {
+          showNotification('Backup restored successfully!');
+          updateDropZoneStatus();
+        } else {
+          alert('Error restoring backup: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error restoring backup:', error);
+        alert('Error restoring backup. Please try again.');
+      }
+    }
+  });
   
   startBtn.addEventListener('click', start);
   pauseBtn.addEventListener('click', pause);
   stopBtn.addEventListener('click', stop);
   resetBtn.addEventListener('click', reset);
   settingsBtn.addEventListener('click', toggleSettings);
-  testBtn.addEventListener('click', () => {
+  testAudioBtn.addEventListener('click', () => {
     beep(); // Test the audio sequence
   });
+
+  // Drag-and-drop event handlers
+  function setupDropZone(dropZone, audioNumber) {
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    
+    dropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+    });
+    
+    dropZone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      
+      const files = Array.from(e.dataTransfer.files);
+      const audioFiles = files.filter(file => file.type.startsWith('audio/'));
+      
+      if (audioFiles.length === 0) {
+        alert('Please drop audio files only (.mp3, .wav, .ogg, etc.)');
+        return;
+      }
+      
+      // Handle the files
+      await handleAudioFileDrop(audioFiles, audioNumber);
+      updateDropZoneStatus();
+    });
+  }
+  
+  // Setup drop zones
+  setupDropZone(audio1DropZone, 1);
+  setupDropZone(audio2DropZone, 2);
+  setupDropZone(audio3DropZone, 3);
+  setupDropZone(audio4DropZone, 4);
+  
+  // Audio file drop handler
+  async function handleAudioFileDrop(files, audioNumber) {
+    try {
+      for (const file of files) {
+        const arrayBuffer = await file.arrayBuffer();
+        const fileName = file.name;
+        
+        // For audio 1, replace the single file
+        if (audioNumber === 1) {
+          // Save as Audio1.mp3
+          await window.electronAPI.saveAudioFile(arrayBuffer, fileName, 1);
+          showNotification(`Audio 1 updated: ${fileName}`);
+        } else {
+          // For audio 2-4, add to the folder
+          await window.electronAPI.saveAudioFile(arrayBuffer, fileName, audioNumber);
+          showNotification(`Added to Audio ${audioNumber}: ${fileName}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error handling audio files:', error);
+      alert('Error saving audio files. Please try again.');
+    }
+  }
+  
+  // Show notification
+  function showNotification(message) {
+    // Create a simple toast notification
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.animation = 'slideOut 0.3s ease';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+  
+  // Update drop zone visual status
+  async function updateDropZoneStatus() {
+    try {
+      // For now, just show default status - we could add an IPC call to check files
+      audio1DropZone.querySelector('.drop-text').textContent = 'Drop Audio 1 file here\n(replaces current file)';
+      audio2DropZone.querySelector('.drop-text').textContent = 'Drop Audio 2 files here\n(adds to folder)';
+      audio3DropZone.querySelector('.drop-text').textContent = 'Drop Audio 3 files here\n(adds to folder)';
+      audio4DropZone.querySelector('.drop-text').textContent = 'Drop Audio 4 files here\n(adds to folder)';
+    } catch (error) {
+      console.error('Error updating drop zone status:', error);
+    }
+  }
 
   // Initialize audio elements on first user interaction
   window.addEventListener('click', () => {

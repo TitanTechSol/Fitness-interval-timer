@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness Interval Timer</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body data-theme="dark">
+  <div class="container">
+    <!-- Main Timer View -->
+    <div id="mainView">
+      <!-- Settings Button -->
+      <button id="settings" class="settings-btn">⚙️</button>
+      
+      <div class="timer-section">
+        <div class="time" id="display">10:00</div>
+        
+        <div class="buttons">
+          <button id="start">Start</button>
+          <button id="pause" disabled>Pause</button>
+          <button id="stop">Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="settingsView" style="display: none;">
+      <div class="settings-view">
+        
+        <!-- Settings Header with Back Button -->
+        <div class="settings-header">
+          <button id="backBtn" class="back-btn">← Back to Timer</button>
+          <h2>Settings</h2>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="settings-nav">
+          <button class="nav-btn active" data-page="timer">Timer</button>
+          <button class="nav-btn" data-page="audio">Audio</button>
+        </div>
+
+        <!-- Timer Settings Page -->
+        <div class="settings-page active" id="timerPage">
+          
+          <!-- Time Configuration -->
+          <div class="setting-group">
+            <h3>Duration</h3>
+            <div class="setting-row">
+              <span class="setting-label">Set Time</span>
+              <div class="time-inputs">
+                <input type="number" id="hours" class="time-input" min="0" max="23" value="0" placeholder="HH">
+                <span>:</span>
+                <input type="number" id="minutes" class="time-input" min="0" max="59" value="10" placeholder="MM">
+                <span>:</span>
+                <input type="number" id="seconds" class="time-input" min="0" max="59" value="0" placeholder="SS">
+              </div>
+            </div>
+          </div>
+
+          <!-- Random Mode -->
+          <div class="setting-group">
+            <h3>Random Mode</h3>
+            <div class="setting-row">
+              <span class="setting-label">Enable Random Intervals</span>
+              <div class="slider-switch" id="randomModeSwitch"></div>
+            </div>
+            
+            <div class="random-range-inputs" id="randomRangeInputs">
+              <div class="range-group">
+                <label>Minimum</label>
+                <div class="time-inputs">
+                  <input type="number" id="randomMinHours" class="time-input" min="0" max="23" value="0">
+                  <span>:</span>
+                  <input type="number" id="randomMinMinutes" class="time-input" min="0" max="59" value="5">
+                  <span>:</span>
+                  <input type="number" id="randomMinSeconds" class="time-input" min="0" max="59" value="0">
+                </div>
+              </div>
+              <div class="range-group">
+                <label>Maximum</label>
+                <div class="time-inputs">
+                  <input type="number" id="randomMaxHours" class="time-input" min="0" max="23" value="0">
+                  <span>:</span>
+                  <input type="number" id="randomMaxMinutes" class="time-input" min="0" max="59" value="15">
+                  <span>:</span>
+                  <input type="number" id="randomMaxSeconds" class="time-input" min="0" max="59" value="0">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other Settings -->
+          <div class="setting-group">
+            <h3>Preferences</h3>
+            <div class="setting-row">
+              <span class="setting-label">Sound Notifications</span>
+              <div class="slider-switch active" id="soundSwitch"></div>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Desktop Notifications</span>
+              <div class="slider-switch active" id="notifySwitch"></div>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Always on Top</span>
+              <div class="slider-switch" id="alwaysOnTopSwitch"></div>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Volume</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100">
+                <span id="volumeDisplay">100%</span>
+              </div>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Theme</span>
+              <select id="themeSelector" class="theme-selector">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+                <option value="blue">Blue</option>
+                <option value="yellow">Yellow</option>
+                <option value="orange">Orange</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Reset Button -->
+          <div class="setting-group">
+            <button id="reset">Reset All Settings</button>
+          </div>
+
+        </div>
+
+        <!-- Audio Settings Page -->
+        <div class="settings-page" id="audioPage">
+          
+          <!-- How to Use Guide -->
+          <div class="setting-group">
+            <h3>How to Add Your Own Audio Files</h3>
+            <div class="audio-guide">
+              <div class="guide-step">
+                <span class="step-number">1</span>
+                <div class="step-content">
+                  <strong>Prepare your audio files</strong>
+                  <p>Save your audio files as MP3, WAV, or OGG format on your computer</p>
+                </div>
+              </div>
+              
+              <div class="guide-step">
+                <span class="step-number">2</span>
+                <div class="step-content">
+                  <strong>Drag and drop files</strong>
+                  <p>Drag your audio files from File Explorer directly onto the drop zones below</p>
+                </div>
+              </div>
+              
+              <div class="guide-step">
+                <span class="step-number">3</span>
+                <div class="step-content">
+                  <strong>Audio sequence explanation</strong>
+                  <ul>
+                    <li><strong>Audio 1:</strong> Single file that plays first (e.g., "What are you doing?")</li>
+                    <li><strong>Audio 2:</strong> Random from folder (e.g., "If you are sitting", "If you are lying down")</li>
+                    <li><strong>Audio 3:</strong> Random from folder (e.g., "Do 10 pushups", "Do jumping jacks")</li>
+                    <li><strong>Audio 4:</strong> Optional extra audio (e.g., motivational sounds)</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="guide-step">
+                <span class="step-number">4</span>
+                <div class="step-content">
+                  <strong>Test your setup</strong>
+                  <p>Use the "Test Audio Sequence" button to preview how your audios will play</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Audio Configuration -->
+          <div class="setting-group">
+            <h3>Audio Sequence</h3>
+            <div class="setting-row">
+              <span class="setting-label">Number of Audios</span>
+              <select id="audioCountSelector" class="audio-count-selector">
+                <option value="1">1 Audio</option>
+                <option value="2">2 Audios</option>
+                <option value="3">3 Audios (Default)</option>
+                <option value="4">4 Audios</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Drag and Drop Zones -->
+          <div class="setting-group">
+            <h3>Drop Your Audio Files Here</h3>
+            <p class="drop-zone-instruction">Drag audio files from your computer directly onto these zones:</p>
+            
+            <div class="drop-zones">
+              <div class="drop-zone" id="audio1DropZone">
+                <div class="drop-zone-header">
+                  <span class="audio-number">1</span>
+                  <strong>Audio 1</strong>
+                </div>
+                <div class="drop-text">Drop single MP3/WAV file here<br><small>Replaces current: "What are you doing?"</small></div>
+              </div>
+              
+              <div class="drop-zone" id="audio2DropZone">
+                <div class="drop-zone-header">
+                  <span class="audio-number">2</span>
+                  <strong>Audio 2 Folder</strong>
+                </div>
+                <div class="drop-text">Drop multiple files here<br><small>Random selection: "If you are..."</small></div>
+              </div>
+              
+              <div class="drop-zone" id="audio3DropZone">
+                <div class="drop-zone-header">
+                  <span class="audio-number">3</span>
+                  <strong>Audio 3 Folder</strong>
+                </div>
+                <div class="drop-text">Drop multiple files here<br><small>Random selection: "Do 10 pushups..."</small></div>
+              </div>
+              
+              <div class="drop-zone" id="audio4DropZone">
+                <div class="drop-zone-header">
+                  <span class="audio-number">4</span>
+                  <strong>Audio 4 Folder</strong>
+                </div>
+                <div class="drop-text">Drop optional files here<br><small>Extra motivational sounds</small></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Audio Actions -->
+          <div class="setting-group">
+            <h3>Actions</h3>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button id="testAudio">Test Audio Sequence</button>
+              <button id="restoreBackup">Restore Backup Audios</button>
+              <button id="openSoundsFolder">Open Audio Folder</button>
+            </div>
+          </div>
+
+          <!-- Helpful Tips -->
+          <div class="setting-group">
+            <h3>💡 Tips for Best Results</h3>
+            <div class="tips-list">
+              <div class="tip">
+                <span class="tip-icon">🎵</span>
+                <span><strong>Audio Quality:</strong> Use clear, loud audio files. Avoid background music.</span>
+              </div>
+              <div class="tip">
+                <span class="tip-icon">⏱️</span>
+                <span><strong>Duration:</strong> Keep files short (2-5 seconds) for quick responses.</span>
+              </div>
+              <div class="tip">
+                <span class="tip-icon">📁</span>
+                <span><strong>Organization:</strong> You can add multiple variations to Audio 2-4 folders for variety.</span>
+              </div>
+              <div class="tip">
+                <span class="tip-icon">🔄</span>
+                <span><strong>Backup:</strong> Original files are safely stored. Use "Restore Backup" to reset.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load JavaScript Modules -->
+  <script src="src/settings.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/timer.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
