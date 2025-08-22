@@ -4,30 +4,10 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder",
-    "build-win": "electron-builder --win",
-    "build-mac": "electron-builder --mac",
-    "build-linux": "electron-builder --linux",
-    "dist": "electron-builder --publish=never",
+    "build": "electron-packager . fitness-interval-timer --platform=win32 --arch=x64 --out=dist --overwrite --ignore=node_modules/electron-builder",
+    "build-all": "electron-packager . fitness-interval-timer --all --out=dist --overwrite",
+    "dist": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "build": {
-    "appId": "com.gakibbie.fitness-interval-timer",
-    "productName": "Fitness Interval Timer",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "main.js",
-      "timer.html",
-      "sounds/**/*",
-      "package.json"
-    ],
-    "win": {
-      "target": "dir"
-    },
-    "compression": "store",
-    "removePackageKeywords": true
   },
   "keywords": [
     "fitness",
@@ -41,6 +21,6 @@
   "description": "A customizable fitness interval timer with audio cues and multiple themes",
   "devDependencies": {
     "electron": "^37.3.1",
-    "electron-builder": "^24.13.3"
+    "electron-packager": "^17.1.2"
   }
 }
