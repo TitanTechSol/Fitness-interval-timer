@@ -4,7 +4,6 @@ class UIManager {
     this.currentView = 'main';
     this.currentSettingsPage = 'timer';
     this.initializeNavigation();
-    this.initializeDragAndDrop();
   }
 
   initializeNavigation() {
@@ -33,24 +32,24 @@ class UIManager {
     const testAudioBtn = document.getElementById('testAudio');
     if (testAudioBtn) {
       testAudioBtn.addEventListener('click', () => {
-        window.audioManager?.testSequence();
+        window.speechManager?.testSequence();
       });
     }
 
-    const restoreBackupBtn = document.getElementById('restoreBackup');
-    if (restoreBackupBtn) {
-      restoreBackupBtn.addEventListener('click', async () => {
-        if (confirm('This will restore the original audio files and delete any custom files you\'ve added. Continue?')) {
+    const restoreMessagesBtn = document.getElementById('restoreMessages');
+    if (restoreMessagesBtn) {
+      restoreMessagesBtn.addEventListener('click', async () => {
+        if (confirm('This will restore the original message files and overwrite any custom messages you\'ve created. Continue?')) {
           try {
-            const success = await window.audioManager?.restoreBackup();
+            const success = await window.speechManager?.restoreOriginalMessages();
             if (success) {
-              this.showNotification('Backup restored successfully!');
+              this.showNotification('✅ Original messages restored successfully!');
             } else {
-              alert('Error restoring backup. Please try again.');
+              alert('Error restoring messages. Please try again.');
             }
           } catch (error) {
-            console.error('Error restoring backup:', error);
-            alert('Error restoring backup. Please try again.');
+            console.error('Error restoring messages:', error);
+            alert('Error restoring messages. Please try again.');
           }
         }
       });
@@ -104,49 +103,6 @@ class UIManager {
     if (targetButton) targetButton.classList.add('active');
     
     this.currentSettingsPage = pageId;
-  }
-
-  initializeDragAndDrop() {
-    // Setup drag and drop for each audio zone
-    for (let i = 1; i <= 4; i++) {
-      this.setupDropZone(i);
-    }
-  }
-
-  setupDropZone(audioNumber) {
-    const dropZone = document.getElementById(`audio${audioNumber}DropZone`);
-    if (!dropZone) return;
-
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('drag-over');
-    });
-
-    dropZone.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('drag-over');
-    });
-
-    dropZone.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('drag-over');
-      
-      const files = Array.from(e.dataTransfer.files);
-      const audioFiles = files.filter(file => file.type.startsWith('audio/'));
-      
-      if (audioFiles.length === 0) {
-        alert('Please drop audio files only (.mp3, .wav, .ogg, etc.)');
-        return;
-      }
-      
-      try {
-        await window.audioManager?.handleFileDrop(audioFiles, audioNumber);
-        this.showNotification(`${audioFiles.length} file(s) added to Audio ${audioNumber}`);
-      } catch (error) {
-        console.error('Error handling file drop:', error);
-        alert('Error saving audio files. Please try again.');
-      }
-    });
   }
 
   showNotification(message) {

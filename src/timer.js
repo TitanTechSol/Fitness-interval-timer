@@ -115,23 +115,40 @@ class IntervalTimer {
 
   getRandomDuration() {
     const settings = window.settingsManager?.getSettings() || {};
-    const minSeconds = this.timeToSeconds(
-      settings.randomMinHours || 0,
-      settings.randomMinMinutes || 7,
-      settings.randomMinSeconds || 0
-    );
-    const maxSeconds = this.timeToSeconds(
-      settings.randomMaxHours || 0,
-      settings.randomMaxMinutes || 12,
-      settings.randomMaxSeconds || 0
-    );
     
-    const actualMin = Math.max(1, Math.min(minSeconds, maxSeconds));
-    const actualMax = Math.max(1, Math.max(minSeconds, maxSeconds));
+    // Debug: log the settings to see what we're getting
+    console.log('Random duration settings:', {
+      randomMinHours: settings.randomMinHours,
+      randomMinMinutes: settings.randomMinMinutes, 
+      randomMinSeconds: settings.randomMinSeconds,
+      randomMaxHours: settings.randomMaxHours,
+      randomMaxMinutes: settings.randomMaxMinutes,
+      randomMaxSeconds: settings.randomMaxSeconds
+    });
+    
+    // Get values directly from settings, don't use fallbacks for 0 values
+    const minHours = typeof settings.randomMinHours === 'number' ? settings.randomMinHours : 0;
+    const minMinutes = typeof settings.randomMinMinutes === 'number' ? settings.randomMinMinutes : 7;
+    const minSeconds = typeof settings.randomMinSeconds === 'number' ? settings.randomMinSeconds : 0;
+    
+    const maxHours = typeof settings.randomMaxHours === 'number' ? settings.randomMaxHours : 0;
+    const maxMinutes = typeof settings.randomMaxMinutes === 'number' ? settings.randomMaxMinutes : 12;
+    const maxSeconds = typeof settings.randomMaxSeconds === 'number' ? settings.randomMaxSeconds : 0;
+    
+    const minTotalSeconds = this.timeToSeconds(minHours, minMinutes, minSeconds);
+    const maxTotalSeconds = this.timeToSeconds(maxHours, maxMinutes, maxSeconds);
+    
+    console.log('Calculated seconds:', { minTotalSeconds, maxTotalSeconds });
+    
+    const actualMin = Math.max(1, Math.min(minTotalSeconds, maxTotalSeconds));
+    const actualMax = Math.max(1, Math.max(minTotalSeconds, maxTotalSeconds));
+    
+    const randomDuration = Math.floor(Math.random() * (actualMax - actualMin + 1)) + actualMin;
+    console.log('Selected random duration:', randomDuration, 'seconds');
     
     if (actualMin === actualMax) return actualMax;
     
-    return Math.floor(Math.random() * (actualMax - actualMin + 1)) + actualMin;
+    return randomDuration;
   }
 
   onTimerComplete() {

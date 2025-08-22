@@ -6,24 +6,29 @@ class SettingsManager {
       hours: 0,
       minutes: 10,
       seconds: 0,
-      randomMode: false,
+      randomMode: true, // Enable random mode by default
       randomMinHours: 0,
-      randomMinMinutes: 5,
+      randomMinMinutes: 7, // 7 minutes minimum
       randomMinSeconds: 0,
       randomMaxHours: 0,
-      randomMaxMinutes: 15,
+      randomMaxMinutes: 12, // 12 minutes maximum
       randomMaxSeconds: 0,
       
-      // Audio settings
+      // Audio/Speech settings
       sound: true,
       audioCount: 3,
       volume: 1.0,
+      
+      // TTS settings
+      speechRate: 1.0,      // Speed (0.1 - 10)
+      speechPitch: 1.0,     // Pitch (0 - 2)  
+      speechVoice: 0,       // Voice index
       
       // App settings
       theme: 'dark',
       alwaysOnTop: false,
       notifications: true,
-      autoRestart: false
+      autoRestart: true // Enable auto-restart by default
     };
     
     this.settings = this.loadSettings();
@@ -88,6 +93,7 @@ class SettingsManager {
     this.updateSliderSwitch('soundSwitch', this.settings.sound);
     this.updateSliderSwitch('notifySwitch', this.settings.notifications);
     this.updateSliderSwitch('alwaysOnTopSwitch', this.settings.alwaysOnTop);
+    this.updateSliderSwitch('autoRestartSwitch', this.settings.autoRestart);
     
     // Set volume
     const volumeSlider = document.getElementById('volumeSlider');
@@ -147,6 +153,7 @@ class SettingsManager {
     this.setupSliderSwitch('soundSwitch', 'sound');
     this.setupSliderSwitch('notifySwitch', 'notifications');
     this.setupSliderSwitch('alwaysOnTopSwitch', 'alwaysOnTop');
+    this.setupSliderSwitch('autoRestartSwitch', 'autoRestart');
 
     // Volume slider
     const volumeSlider = document.getElementById('volumeSlider');
@@ -175,6 +182,94 @@ class SettingsManager {
         this.updateSetting('audioCount', parseInt(e.target.value));
       });
     }
+
+    // Speech controls
+    this.setupSpeechControls();
+  }
+
+  setupSpeechControls() {
+    // Voice selector
+    const voiceSelector = document.getElementById('voiceSelector');
+    if (voiceSelector) {
+      voiceSelector.addEventListener('change', (e) => {
+        this.updateSetting('speechVoice', parseInt(e.target.value));
+        // Update speech manager
+        if (window.speechManager) {
+          window.speechManager.setVoice(parseInt(e.target.value));
+        }
+      });
+    }
+
+    // Speech rate slider
+    const speechRateSlider = document.getElementById('speechRateSlider');
+    if (speechRateSlider) {
+      speechRateSlider.addEventListener('input', (e) => {
+        const rate = parseFloat(e.target.value);
+        this.updateSetting('speechRate', rate);
+        
+        // Update display
+        const display = document.getElementById('speechRateDisplay');
+        if (display) {
+          if (rate < 0.8) display.textContent = 'Slow';
+          else if (rate > 1.5) display.textContent = 'Fast';
+          else display.textContent = 'Normal';
+        }
+        
+        // Update speech manager
+        if (window.speechManager) {
+          window.speechManager.updateSettings({ rate });
+        }
+      });
+    }
+
+    // Speech pitch slider
+    const speechPitchSlider = document.getElementById('speechPitchSlider');
+    if (speechPitchSlider) {
+      speechPitchSlider.addEventListener('input', (e) => {
+        const pitch = parseFloat(e.target.value);
+        this.updateSetting('speechPitch', pitch);
+        
+        // Update display
+        const display = document.getElementById('speechPitchDisplay');
+        if (display) {
+          if (pitch < 0.8) display.textContent = 'Low';
+          else if (pitch > 1.3) display.textContent = 'High';
+          else display.textContent = 'Normal';
+        }
+        
+        // Update speech manager
+        if (window.speechManager) {
+          window.speechManager.updateSettings({ pitch });
+        }
+      });
+    }
+
+    // Test voice button
+    const testVoiceBtn = document.getElementById('testVoiceBtn');
+    if (testVoiceBtn) {
+      testVoiceBtn.addEventListener('click', () => {
+        if (window.speechManager) {
+          window.speechManager.speak(1, 1.0); // Test with Audio 1 message
+        }
+      });
+    }
+
+    // Test category buttons
+    const testCategoryBtns = document.querySelectorAll('.test-category-btn');
+    testCategoryBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const audioNumber = parseInt(e.target.dataset.audio);
+        if (window.speechManager) {
+          window.speechManager.testMessage(audioNumber);
+        }
+      });
+    });
+
+    // Initialize voice selector with available voices
+    setTimeout(() => {
+      this.populateVoiceSelector();
+      this.updateMessagePreviews();
+    }, 1000); // Give time for voices to load
   }
 
   setupSliderSwitch(elementId, settingKey) {
@@ -222,6 +317,42 @@ class SettingsManager {
 
   applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  populateVoiceSelector() {
+    const voiceSelector = document.getElementById('voiceSelector');
+    if (!voiceSelector || !window.speechManager) return;
+
+    const voices = window.speechManager.getAvailableVoices();
+    voiceSelector.innerHTML = '';
+
+    voices.forEach(voice => {
+      const option = document.createElement('option');
+      option.value = voice.index;
+      option.textContent = `${voice.name} (${voice.lang})`;
+      if (voice.isDefault) option.selected = true;
+      voiceSelector.appendChild(option);
+    });
+  }
+
+  updateMessagePreviews() {
+    if (!window.speechManager) return;
+
+    const messages = window.speechManager.messages;
+    
+    for (let i = 1; i <= 4; i++) {
+      const preview = document.getElementById(`audio${i}Preview`);
+      if (preview) {
+        const audioKey = `audio${i}`;
+        const messageList = messages[audioKey];
+        
+        if (messageList && messageList.length > 0) {
+          preview.textContent = `${messageList.length} messages: "${messageList[0]}"${messageList.length > 1 ? ` and ${messageList.length - 1} more...` : ''}`;
+        } else {
+          preview.textContent = 'No messages loaded';
+        }
+      }
+    }
   }
 }
 

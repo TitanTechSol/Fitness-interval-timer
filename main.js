@@ -35,94 +35,69 @@ ipcMain.handle('open-sounds-folder', () => {
   return soundsPath;
 });
 
-// Save audio file handler
-ipcMain.handle('save-audio-file', async (event, arrayBuffer, fileName, audioNumber) => {
+// Handle text file reading
+ipcMain.handle('read-text-file', async (event, filePath) => {
   try {
-    const soundsDir = path.join(__dirname, 'sounds');
-    let targetPath;
-    
-    if (audioNumber === 1) {
-      // Replace Audio1.mp3
-      targetPath = path.join(soundsDir, 'Audio1.mp3');
-    } else {
-      // Save to Audio2, Audio3, or Audio4 folder
-      const folderName = `Audio${audioNumber}`;
-      const folderPath = path.join(soundsDir, folderName);
-      
-      // Ensure the folder exists
-      await fs.mkdir(folderPath, { recursive: true });
-      
-      targetPath = path.join(folderPath, fileName);
-    }
-    
-    // Write the file
-    const buffer = Buffer.from(arrayBuffer);
-    await fs.writeFile(targetPath, buffer);
-    
-    return { success: true, path: targetPath };
+    const content = await fs.readFile(filePath, 'utf-8');
+    return content;
   } catch (error) {
-    console.error('Error saving audio file:', error);
-    return { success: false, error: error.message };
+    console.error('Error reading text file:', error);
+    throw error;
   }
 });
 
-// Restore backup handler
-ipcMain.handle('restore-backup', async () => {
+// Handle text file saving
+ipcMain.handle('save-text-file', async (event, content, fileName, audioNumber) => {
   try {
-    const soundsDir = path.join(__dirname, 'sounds');
-    const archiveDir = path.join(soundsDir, 'Archive');
+    const audioFolderPath = path.join(__dirname, 'sounds');
+    const filePath = path.join(audioFolderPath, `Audio${audioNumber}.md`);
     
-    // Check if Archive exists
-    const archiveStat = await fs.stat(archiveDir);
-    if (!archiveStat.isDirectory()) {
-      return { success: false, error: 'Archive folder not found' };
-    }
+    // Save the file
+    await fs.writeFile(filePath, content, 'utf-8');
     
-    // Copy Start.mp3 to Audio1.mp3
-    const startPath = path.join(archiveDir, 'Start.mp3');
-    const audio1Path = path.join(soundsDir, 'Audio1.mp3');
-    await fs.copyFile(startPath, audio1Path);
-    
-    // Copy Reason folder to Audio2
-    const reasonPath = path.join(archiveDir, 'Reason');
-    const audio2Path = path.join(soundsDir, 'Audio2');
-    await copyDirectory(reasonPath, audio2Path);
-    
-    // Copy Punishment folder to Audio3  
-    const punishmentPath = path.join(archiveDir, 'Punishment');
-    const audio3Path = path.join(soundsDir, 'Audio3');
-    await copyDirectory(punishmentPath, audio3Path);
-    
-    // Clear Audio4 folder
-    const audio4Path = path.join(soundsDir, 'Audio4');
-    await fs.rm(audio4Path, { recursive: true, force: true });
-    await fs.mkdir(audio4Path, { recursive: true });
+    console.log(`Message file saved: ${fileName} to Audio${audioNumber}.md`);
     
     return { success: true };
   } catch (error) {
-    console.error('Error restoring backup:', error);
+    console.error('Error saving text file:', error);
     return { success: false, error: error.message };
   }
 });
 
-// Helper function to copy directory
-async function copyDirectory(src, dest) {
-  await fs.rm(dest, { recursive: true, force: true });
-  await fs.mkdir(dest, { recursive: true });
-  
-  const entries = await fs.readdir(src, { withFileTypes: true });
-  
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
+// Restore original message files from Archive
+ipcMain.handle('restore-original-messages', async () => {
+  try {
+    const soundsPath = path.join(__dirname, 'sounds');
+    const archivePath = path.join(soundsPath, 'Archive');
     
-    if (entry.isDirectory()) {
-      await copyDirectory(srcPath, destPath);
-    } else {
-      await fs.copyFile(srcPath, destPath);
+    // Check if Archive folder exists
+    if (!await fs.access(archivePath).then(() => true).catch(() => false)) {
+      throw new Error('Archive folder not found. Cannot restore original messages.');
     }
+    
+    // Copy each archived message file back to sounds folder
+    const messageFiles = ['Audio1.md', 'Audio2.md', 'Audio3.md', 'Audio4.md'];
+    
+    for (const fileName of messageFiles) {
+      const sourcePath = path.join(archivePath, fileName);
+      const destPath = path.join(soundsPath, fileName);
+      
+      // Check if archive file exists
+      if (await fs.access(sourcePath).then(() => true).catch(() => false)) {
+        await fs.copyFile(sourcePath, destPath);
+        console.log(`Restored: ${fileName}`);
+      } else {
+        console.warn(`Archive file not found: ${fileName}`);
+      }
+    }
+    
+    console.log('Original messages restored successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('Error restoring original messages:', error);
+    return { success: false, error: error.message };
   }
-}
+});
 
 app.whenReady().then(createWindow);
 

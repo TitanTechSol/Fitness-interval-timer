@@ -5,6 +5,11 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
   setAlwaysOnTop: (enabled) => ipcRenderer.invoke('set-always-on-top', enabled),
   openSoundsFolder: () => ipcRenderer.invoke('open-sounds-folder'),
-  saveAudioFile: (arrayBuffer, fileName, audioNumber) => ipcRenderer.invoke('save-audio-file', arrayBuffer, fileName, audioNumber),
-  restoreBackup: () => ipcRenderer.invoke('restore-backup')
+  
+  // Text file operations for message management
+  readTextFile: (filePath) => ipcRenderer.invoke('read-text-file', filePath),
+  saveTextFile: (content, fileName, audioNumber) => ipcRenderer.invoke('save-text-file', content, fileName, audioNumber),
+  
+  // Message restoration
+  restoreOriginalMessages: () => ipcRenderer.invoke('restore-original-messages')
 });
