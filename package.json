@@ -7,6 +7,9 @@
     "build": "electron-packager . fitness-interval-timer --platform=win32 --arch=x64 --out=dist --overwrite --ignore=node_modules/electron-builder",
     "build-all": "electron-packager . fitness-interval-timer --all --out=dist --overwrite",
     "dist": "npm run build",
+    "clean": "rimraf dist node_modules",
+    "setup": "npm install && npm run dist",
+    "quick-start": "npm install && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

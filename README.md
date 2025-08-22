@@ -39,6 +39,23 @@ A professional desktop fitness interval timer built with Electron featuring pure
 
 ## 🚀 Getting Started
 
+### ⚡ Quick Start (Plug & Play)
+
+**Windows Users (Easiest):**
+1. Download this repository (green "Code" button → "Download ZIP")
+2. Extract the ZIP file
+3. **Double-click `RUN.bat`** - That's it! 🎉
+
+*Alternative: Double-click `install.bat` for setup only*
+
+**Advanced Users:**
+```bash
+# One-line install (requires Git)
+git clone https://github.com/gakibbie/Fitness-interval-timer.git && cd Fitness-interval-timer && npm run setup
+```
+
+### 🛠️ Manual Setup
+
 ### Prerequisites
 - Node.js (v14 or higher)
 - npm package manager
