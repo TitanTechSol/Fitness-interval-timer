@@ -5,9 +5,9 @@ class MessageEditorManager {
     this.currentAudioNumber = null;
     this.categoryNames = {
       1: 'Check-in Messages',
-      2: 'Motivation Messages', 
-      3: 'Punishment Messages',
-      4: 'Encouragement Messages'
+      2: 'Action Detection Messages', 
+      3: 'Workout Commands',
+      4: 'Custom Messages'
     };
     this.exampleMessages = {
       1: [
@@ -18,18 +18,18 @@ class MessageEditorManager {
         "How's your progress?"
       ],
       2: [
-        "Get back to work!",
-        "Focus on your goals!",
-        "You can do this!",
-        "Stay productive!",
-        "Push through!"
+        "If you are sitting",
+        "If you are standing",
+        "If you are reading",
+        "If you are in the room",
+        "If you are complaining"
       ],
       3: [
-        "Seriously? Again?",
-        "You're better than this!",
-        "No excuses!",
-        "Stop wasting time!",
-        "Focus now!"
+        "Do 10 pushups",
+        "Do 10 situps",
+        "Do 30 seconds of plank",
+        "Do 30 jumping jacks",
+        "Do 10 squats"
       ],
       4: [
         "Great job!",

@@ -1,15 +1,15 @@
 # Fitness Interval Timer
 
-A professional desktop fitness interval timer built with Electron featuring customizable audio sequences, multiple themes, and comprehensive user controls.
+A professional desktop fitness interval timer built with Electron featuring customizable text-to-speech messages, multiple themes, and comprehensive user controls.
 
 ## ✨ Key Features
 
-### 🎵 Advanced Audio System
-- **4-Audio Sequence Playback**: Configurable sequence from 1-4 audio tracks
-- **Smart Audio Management**: Mix of single files and random folder selections
-- **Drag & Drop Support**: Easily add custom audio files to any sequence
-- **Volume Control**: Master volume slider with real-time adjustment
-- **Audio Testing**: Test your sequence before starting workouts
+### 🗣️ Advanced Text-to-Speech System
+- **4-Message Sequence Playback**: Configurable TTS sequence from 1-4 message categories
+- **Smart Message Management**: Template-based system with check-ins, actions, and workouts
+- **Voice Customization**: Select from Windows built-in voices with speed, pitch, and volume controls
+- **Message Editor**: Full-featured text editor for customizing all message categories
+- **100% Offline**: No internet connection required - uses system TTS voices
 
 ### ⏰ Flexible Timer Controls  
 - **Fixed Timer Mode**: Set precise hours, minutes, and seconds
@@ -22,7 +22,7 @@ A professional desktop fitness interval timer built with Electron featuring cust
 - **Always on Top**: Keep timer visible during workouts
 - **Responsive Design**: Adapts to different window sizes (minimum 600x600px)
 - **Intuitive Navigation**: Clean settings interface with tabbed navigation
-- **Visual Feedback**: Enhanced drop zones with drag-and-drop indicators
+- **Modal Message Editor**: Professional interface for editing messages
 
 ### 📱 Smart Notifications
 - **Desktop Notifications**: System notifications when timer completes
@@ -30,10 +30,10 @@ A professional desktop fitness interval timer built with Electron featuring cust
 - **Customizable Alerts**: Toggle notifications on/off in settings
 
 ### 🔧 User-Friendly Setup
-- **Step-by-Step Guide**: Comprehensive audio setup instructions
-- **Visual Drop Zones**: Numbered zones for easy file organization
-- **Helpful Tips**: Built-in best practices and usage recommendations
-- **Backup System**: Restore original audio files when needed
+- **Message Template System**: Structured approach to fitness accountability
+- **Quick Add Messages**: Rapidly add single messages to any category
+- **Archive & Restore**: Backup system to restore original messages
+- **Test Functionality**: Preview messages with current voice settings
 
 ## 🚀 Getting Started
 
@@ -54,9 +54,9 @@ A professional desktop fitness interval timer built with Electron featuring cust
    npm install
    ```
 
-3. **Set up audio files** (Optional - includes sample files)
-   - The app includes a comprehensive guide for adding your own audio files
-   - Use the drag-and-drop interface in settings to customize your experience
+3. **Set up messages** (Optional - includes default template-based messages)
+   - The app includes a comprehensive message template system
+   - Use the message editor interface in settings to customize your experience
 
 ### Running the Application
 
@@ -84,37 +84,47 @@ The application uses a modular architecture for maintainability:
 ├── src/                   # Modular source code
 │   ├── app.js            # Application initialization
 │   ├── timer.js          # Core timer logic
-│   ├── audio.js          # Audio management system
+│   ├── speech.js         # Text-to-speech system
+│   ├── messageEditor.js  # Message editing interface
 │   ├── settings.js       # Settings persistence
 │   ├── ui.js             # UI management & navigation
 │   └── styles.css        # Complete styling system
-└── sounds/               # Audio file organization
-    ├── Audio1.mp3        # Single startup sound
-    ├── Audio2/           # Random motivational sounds
-    ├── Audio3/           # Random punishment sounds
-    ├── Audio4/           # Optional extra sounds
-    └── Archive/          # Backup of original files
+└── sounds/               # Message file organization
+    ├── Audio1.md         # Check-in messages
+    ├── Audio2.md         # Action detection messages
+    ├── Audio3.md         # Workout commands
+    ├── Audio4.md         # Custom messages
+    ├── MESSAGE_TEMPLATE.md # Template reference
+    └── Archive/          # Backup of original messages
 ```
 
-## 🎵 Audio System Guide
+## 🗣️ Message System Guide
 
-### Audio Sequence Flow
-1. **Audio 1**: Single file that plays first (e.g., "What are you doing?")
-2. **Audio 2**: Random selection from folder (e.g., motivational prompts)
-3. **Audio 3**: Random selection from folder (e.g., consequences/punishments)
-4. **Audio 4**: Optional extra audio (e.g., motivational closing)
+### Message Template Structure
+The app uses a structured template system: **[Check-in], If you are [Action], do [Workout]**
 
-### Supported Formats
-- MP3 (recommended)
-- WAV
-- OGG
-- Other HTML5 audio formats
+### Message Categories
+1. **Audio1.md**: Check-in messages (e.g., "What are you doing right now?")
+2. **Audio2.md**: Action detection messages (e.g., "If you are sitting")
+3. **Audio3.md**: Workout commands (e.g., "Do 10 pushups")
+4. **Audio4.md**: Custom messages (user customizable, currently empty)
 
-### File Organization Tips
-- Use descriptive filenames for easy management
-- Keep file sizes reasonable for smooth playback
-- Test your audio sequence before workouts
-- Use the backup restore feature if you need to reset
+### Template Components
+- **Check-ins**: Accountability questions and focus prompts (Audio1)
+- **Actions**: Behavioral patterns to detect - sitting, reading, etc. (Audio2)
+- **Workouts**: Specific exercises and fitness challenges (Audio3)
+
+### Message Editing Features
+- **Full Editor**: Multi-line text editing with real-time stats
+- **Quick Add**: Rapid single-message addition with examples
+- **Test Messages**: Preview messages with current TTS voice
+- **Archive System**: Restore original messages anytime
+
+### Voice Customization
+- **Voice Selection**: Choose from Windows built-in voices
+- **Speed Control**: Adjust speech rate from 0.5x to 2x
+- **Pitch Control**: Modify voice pitch for personalization  
+- **Volume Control**: Set TTS volume independent of system volume
 
 ## ⚙️ Configuration Options
 
