@@ -5,20 +5,110 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>FIT</title>
 <style>
-  :root { font-family: system-ui, sans-serif; }
-  body { display:flex; min-height:100svh; align-items:center; justify-content:center; background:#0f172a; color:#e2e8f0; margin:0; padding:0; overflow:hidden; }
-  .main-card { position: relative; background:#111827; padding:24px; border-radius:16px; box-shadow: 0 8px 30px rgba(0,0,0,.35); width:500px; overflow:hidden; }
-  h1 { margin:0 0 10px; font-size:1.15rem; color:#93c5fd; font-weight:600; }
+  :root { 
+    font-family: system-ui, sans-serif;
+    /* Default Dark Theme */
+    --bg-primary: #0f172a;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1f2937;
+    --text-primary: #e2e8f0;
+    --text-secondary: #9ca3af;
+    --text-accent: #93c5fd;
+    --border: #334155;
+    --border-light: #223;
+    --shadow: rgba(0,0,0,.35);
+    --warn: #fca5a5;
+  }
+  
+  /* Light Theme */
+  .theme-light {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-accent: #3b82f6;
+    --border: #cbd5e1;
+    --border-light: #e2e8f0;
+    --shadow: rgba(0,0,0,.1);
+    --warn: #dc2626;
+  }
+  
+  /* Blue Theme */
+  .theme-blue {
+    --bg-primary: #0c1222;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-accent: #60a5fa;
+    --border: #475569;
+    --border-light: #334155;
+    --shadow: rgba(59,130,246,.2);
+    --warn: #f87171;
+  }
+  
+  /* Yellow Theme */
+  .theme-yellow {
+    --bg-primary: #1c1917;
+    --bg-secondary: #292524;
+    --bg-tertiary: #44403c;
+    --text-primary: #fef3c7;
+    --text-secondary: #d6d3d1;
+    --text-accent: #fbbf24;
+    --border: #57534e;
+    --border-light: #44403c;
+    --shadow: rgba(251,191,36,.2);
+    --warn: #f59e0b;
+  }
+  
+  /* Orange Theme */
+  .theme-orange {
+    --bg-primary: #1c1917;
+    --bg-secondary: #292524;
+    --bg-tertiary: #44403c;
+    --text-primary: #fed7aa;
+    --text-secondary: #d6d3d1;
+    --text-accent: #fb923c;
+    --border: #57534e;
+    --border-light: #44403c;
+    --shadow: rgba(251,146,60,.2);
+    --warn: #ea580c;
+  }
+  
+  body { 
+    display:flex; 
+    min-height:100svh; 
+    align-items:center; 
+    justify-content:center; 
+    background:var(--bg-primary); 
+    color:var(--text-primary); 
+    margin:0; 
+    padding:0; 
+    overflow:hidden; 
+  }
+  .main-card { position: relative; background:var(--bg-secondary); padding:24px; border-radius:16px; box-shadow: 0 8px 30px var(--shadow); width:500px; overflow:hidden; }
+  h1 { margin:0 0 10px; font-size:1.15rem; color:var(--text-accent); font-weight:600; }
   .time { font-variant-numeric: tabular-nums; font-size:3.2rem; text-align:center; margin:6px 0 12px; }
   .row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
-  button, input { font:inherit; padding:10px 14px; border-radius:10px; border:1px solid #334155; background:#1f2937; color:#e5e7eb; }
+  button, input, select { font:inherit; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg-tertiary); color:var(--text-primary); }
   button:hover { filter:brightness(1.1); cursor:pointer; }
   .settings-btn { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; padding: 6px; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-  .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:#0b1324; border:1px solid #223; color:#9ca3af; font-size:.9rem; }
+  .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:var(--bg-primary); border:1px solid var(--border-light); color:var(--text-secondary); font-size:.9rem; }
   .muted { opacity:.75 }
   .stack { display:grid; gap:8px; }
-  .footer { margin-top:10px; display:flex; justify-content:space-between; align-items:center; font-size:.9rem; color:#9ca3af; }
-  .warn { color:#fca5a5; }
+  .footer { margin-top:10px; display:flex; justify-content:space-between; align-items:center; font-size:.9rem; color:var(--text-secondary); }
+  .warn { color:var(--warn); }
+  .time-input-group { display: flex; align-items: center; gap: 4px; }
+  .time-input { width: 3rem; text-align: center; }
+  .time-label { font-size: 0.85rem; color: var(--text-secondary); }
+  .random-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .volume-slider { width: 120px; }
+  .help-section { background:var(--bg-primary); padding:16px; border-radius:8px; margin-top:12px; border:1px solid var(--border); }
+  .help-section h3 { margin:0 0 8px; font-size:.95rem; color:var(--text-accent); }
+  .help-section p { margin:0 0 8px; font-size:.85rem; line-height:1.4; }
+  .help-section ol { margin:0; padding-left:20px; font-size:.85rem; line-height:1.4; }
+  .theme-selector { width: 140px; }
 </style>
 </head>
 <body>
@@ -49,12 +139,45 @@
         <div class="row">
           <span class="pill">
             Length:
-            <input id="minutes" type="number" min="1" max="120" value="10" style="width:4.5rem" />
-            min
+            <div class="time-input-group">
+              <input id="hours" type="number" min="0" max="23" value="0" class="time-input" />
+              <span class="time-label">h</span>
+              <input id="minutes" type="number" min="0" max="59" value="10" class="time-input" />
+              <span class="time-label">m</span>
+              <input id="seconds" type="number" min="0" max="59" value="0" class="time-input" />
+              <span class="time-label">s</span>
+            </div>
           </span>
+        </div>
+        
+        <div class="row">
           <label class="pill">
-            <input id="randomMode" type="checkbox" /> Random (7-12 min)
+            <input id="randomMode" type="checkbox" /> Random time between:
           </label>
+        </div>
+        
+        <div id="randomRangeInputs" class="row" style="display: none;">
+          <span class="pill">
+            <div class="random-range">
+              <div class="time-input-group">
+                <input id="randomMinHours" type="number" min="0" max="23" value="0" class="time-input" />
+                <span class="time-label">h</span>
+                <input id="randomMinMinutes" type="number" min="0" max="59" value="7" class="time-input" />
+                <span class="time-label">m</span>
+                <input id="randomMinSeconds" type="number" min="0" max="59" value="0" class="time-input" />
+                <span class="time-label">s</span>
+              </div>
+              <span>-</span>
+              <div class="time-input-group">
+                <input id="randomMaxHours" type="number" min="0" max="23" value="0" class="time-input" />
+                <span class="time-label">h</span>
+                <input id="randomMaxMinutes" type="number" min="0" max="59" value="12" class="time-input" />
+                <span class="time-label">m</span>
+                <input id="randomMaxSeconds" type="number" min="0" max="59" value="0" class="time-input" />
+                <span class="time-label">s</span>
+              </div>
+            </div>
+          </span>
         </div>
         
         <div class="row">
@@ -64,11 +187,49 @@
           <label class="pill">
             <input id="notify" type="checkbox" /> Desktop notice
           </label>
+          <label class="pill">
+            <input id="alwaysOnTop" type="checkbox" /> Always on top
+          </label>
+        </div>
+        
+        <div class="row">
+          <span class="pill">
+            Volume:
+            <input id="volumeSlider" type="range" min="0" max="100" value="100" class="volume-slider" />
+            <span id="volumeDisplay">100%</span>
+          </span>
+        </div>
+        
+        <div class="row">
+          <span class="pill">
+            Theme:
+            <select id="themeSelector" class="theme-selector">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="blue">Blue</option>
+              <option value="yellow">Yellow</option>
+              <option value="orange">Orange</option>
+            </select>
+          </span>
         </div>
         
         <div class="row">
           <button id="test">Test Sound</button>
+          <button id="openSoundsFolder">Open Audio Folder</button>
           <button id="reset">Reset All</button>
+        </div>
+        
+        <div class="help-section">
+          <h3>📁 Adding Custom Audio Files</h3>
+          <p>You can add your own audio files to customize the timer sounds:</p>
+          <ol>
+            <li>Click "Open Audio Folder" above to open the sounds directory</li>
+            <li>Navigate to either "Reason" or "Punishment" folder</li>
+            <li>Add your .mp3 files to these folders</li>
+            <li>Restart the app to load new audio files</li>
+            <li>Use "Test Sound" to preview your custom sounds</li>
+          </ol>
+          <p><strong>Tip:</strong> Files should be in .mp3 format for best compatibility!</p>
         </div>
       </div>
     </div>
@@ -83,6 +244,8 @@
 
 <script>
 (() => {
+  const { ipcRenderer } = require('electron');
+  
   const display = document.getElementById('display');
   const lapsEl  = document.getElementById('laps');
   const startBtn= document.getElementById('start');
@@ -93,10 +256,30 @@
   const settingsView = document.getElementById('settingsView');
   const resetBtn= document.getElementById('reset');
   const testBtn = document.getElementById('test');
+  
+  // Time input elements
+  const hoursInp = document.getElementById('hours');
   const minsInp = document.getElementById('minutes');
+  const secsInp = document.getElementById('seconds');
+  
+  // Random range elements
   const randomModeCb = document.getElementById('randomMode');
+  const randomRangeInputs = document.getElementById('randomRangeInputs');
+  const randomMinHours = document.getElementById('randomMinHours');
+  const randomMinMinutes = document.getElementById('randomMinMinutes');
+  const randomMinSeconds = document.getElementById('randomMinSeconds');
+  const randomMaxHours = document.getElementById('randomMaxHours');
+  const randomMaxMinutes = document.getElementById('randomMaxMinutes');
+  const randomMaxSeconds = document.getElementById('randomMaxSeconds');
+  
+  // Other controls
   const soundCb = document.getElementById('sound');
   const notifyCb= document.getElementById('notify');
+  const alwaysOnTopCb = document.getElementById('alwaysOnTop');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volumeDisplay = document.getElementById('volumeDisplay');
+  const themeSelector = document.getElementById('themeSelector');
+  const openSoundsFolderBtn = document.getElementById('openSoundsFolder');
 
   let totalSec = 10 * 60;     // default 10 min
   let remaining = totalSec;
@@ -105,12 +288,121 @@
   let startAudio = null;
   let reasonAudio = null;
   let punishmentAudio = null;
-  const randomMinutes = [7, 8, 9, 10, 11, 12]; // Random timer durations
+  let masterVolume = 1.0; // 0.0 to 1.0
+  
+  // Settings object to store all preferences
+  const settings = {
+    hours: 0,
+    minutes: 10,
+    seconds: 0,
+    randomMode: false,
+    randomMinHours: 0,
+    randomMinMinutes: 7,
+    randomMinSeconds: 0,
+    randomMaxHours: 0,
+    randomMaxMinutes: 12,
+    randomMaxSeconds: 0,
+    sound: true,
+    notify: false,
+    alwaysOnTop: false,
+    volume: 100,
+    theme: 'dark'
+  };
+  
   // Dynamically load audio files from folders using Node.js
   const fs = require('fs');
   const path = require('path');
   let reasonFiles = [];
   let punishmentFiles = [];
+
+  // Load and save settings to localStorage
+  function loadSettings() {
+    const saved = localStorage.getItem('fitTimerSettings');
+    if (saved) {
+      Object.assign(settings, JSON.parse(saved));
+      applySettings();
+    }
+  }
+  
+  function saveSettings() {
+    localStorage.setItem('fitTimerSettings', JSON.stringify(settings));
+  }
+  
+  function applySettings() {
+    hoursInp.value = settings.hours;
+    minsInp.value = settings.minutes;
+    secsInp.value = settings.seconds;
+    
+    randomModeCb.checked = settings.randomMode;
+    randomMinHours.value = settings.randomMinHours;
+    randomMinMinutes.value = settings.randomMinMinutes;
+    randomMinSeconds.value = settings.randomMinSeconds;
+    randomMaxHours.value = settings.randomMaxHours;
+    randomMaxMinutes.value = settings.randomMaxMinutes;
+    randomMaxSeconds.value = settings.randomMaxSeconds;
+    
+    soundCb.checked = settings.sound;
+    notifyCb.checked = settings.notify;
+    alwaysOnTopCb.checked = settings.alwaysOnTop;
+    volumeSlider.value = settings.volume;
+    themeSelector.value = settings.theme;
+    
+    // Show/hide random range inputs
+    randomRangeInputs.style.display = settings.randomMode ? 'flex' : 'none';
+    
+    // Apply volume
+    masterVolume = settings.volume / 100;
+    volumeDisplay.textContent = settings.volume + '%';
+    
+    // Apply theme
+    document.body.className = settings.theme === 'dark' ? '' : `theme-${settings.theme}`;
+    
+    // Apply always on top
+    if (typeof ipcRenderer !== 'undefined') {
+      ipcRenderer.invoke('set-always-on-top', settings.alwaysOnTop);
+    }
+  }
+
+  // Convert hours, minutes, seconds to total seconds
+  function timeToSeconds(hours, minutes, seconds) {
+    return (hours * 3600) + (minutes * 60) + seconds;
+  }
+
+  // Format seconds to HH:MM:SS or MM:SS
+  function fmt(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    if (hours > 0) {
+      return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    } else {
+      return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    }
+  }
+
+  function getRandomDuration() {
+    const minSeconds = timeToSeconds(settings.randomMinHours, settings.randomMinMinutes, settings.randomMinSeconds);
+    const maxSeconds = timeToSeconds(settings.randomMaxHours, settings.randomMaxMinutes, settings.randomMaxSeconds);
+    
+    // Ensure both min and max are at least 1 second
+    const actualMin = Math.max(1, Math.min(minSeconds, maxSeconds));
+    const actualMax = Math.max(1, Math.max(minSeconds, maxSeconds));
+    
+    // If both are the same, return that value
+    if (actualMin === actualMax) return actualMax;
+    
+    // Generate random seconds between min and max (inclusive)
+    return Math.floor(Math.random() * (actualMax - actualMin + 1)) + actualMin;
+  }
+
+  function setLengthFromInput() {
+    return timeToSeconds(
+      Math.max(0, parseInt(hoursInp.value || '0', 10)),
+      Math.max(0, parseInt(minsInp.value || '0', 10)),
+      Math.max(0, parseInt(secsInp.value || '0', 10))
+    );
+  }
 
   // Load audio files from folders
   function loadAudioFiles() {
@@ -133,25 +425,16 @@
   // Initialize audio file lists
   loadAudioFiles();
 
-  function fmt(s) {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-  }
   function render() { display.textContent = fmt(remaining); }
 
-  function getRandomDuration() {
-    const randomIndex = Math.floor(Math.random() * randomMinutes.length);
-    return randomMinutes[randomIndex] * 60;
-  }
-
-  function setLengthFromInput() {
-    const m = Math.max(1, Math.min(120, parseInt(minsInp.value || '10', 10)));
-    return m * 60;
-  }
-
   function getCurrentDuration() {
-    return randomModeCb.checked ? getRandomDuration() : setLengthFromInput();
+    if (randomModeCb.checked) {
+      return getRandomDuration();
+    } else {
+      const duration = setLengthFromInput();
+      // Ensure minimum 1 second duration
+      return Math.max(1, duration);
+    }
   }
 
   function beep() {
@@ -169,6 +452,11 @@
       reasonAudio = document.getElementById('reasonSound');
       punishmentAudio = document.getElementById('punishmentSound');
     }
+    
+    // Set volume for all audio elements
+    startAudio.volume = masterVolume;
+    reasonAudio.volume = masterVolume;
+    punishmentAudio.volume = masterVolume;
     
     // Select random files
     const randomReason = reasonFiles[Math.floor(Math.random() * reasonFiles.length)];
@@ -258,10 +546,25 @@
   function reset() {
     pause();
     // Reset all settings to defaults
-    minsInp.value = '10';
-    randomModeCb.checked = false;
-    soundCb.checked = true;
-    notifyCb.checked = false;
+    settings.hours = 0;
+    settings.minutes = 10;
+    settings.seconds = 0;
+    settings.randomMode = false;
+    settings.randomMinHours = 0;
+    settings.randomMinMinutes = 7;
+    settings.randomMinSeconds = 0;
+    settings.randomMaxHours = 0;
+    settings.randomMaxMinutes = 12;
+    settings.randomMaxSeconds = 0;
+    settings.sound = true;
+    settings.notify = false;
+    settings.alwaysOnTop = false;
+    settings.volume = 100;
+    settings.theme = 'dark';
+    
+    applySettings();
+    saveSettings();
+    
     laps = 0;
     lapsEl.textContent = String(laps);
     // Reset timer
@@ -282,22 +585,128 @@
     }
   }
 
+  function updateSetting(key, value) {
+    settings[key] = value;
+    saveSettings();
+  }
+  
+  function updateTimeSettings() {
+    updateSetting('hours', parseInt(hoursInp.value || '0'));
+    updateSetting('minutes', parseInt(minsInp.value || '0'));
+    updateSetting('seconds', parseInt(secsInp.value || '0'));
+  }
+  
+  function updateRandomRangeSettings() {
+    updateSetting('randomMinHours', parseInt(randomMinHours.value || '0'));
+    updateSetting('randomMinMinutes', parseInt(randomMinMinutes.value || '0'));
+    updateSetting('randomMinSeconds', parseInt(randomMinSeconds.value || '0'));
+    updateSetting('randomMaxHours', parseInt(randomMaxHours.value || '0'));
+    updateSetting('randomMaxMinutes', parseInt(randomMaxMinutes.value || '0'));
+    updateSetting('randomMaxSeconds', parseInt(randomMaxSeconds.value || '0'));
+  }
+  
+  function onRandomModeChange() {
+    const isRandom = randomModeCb.checked;
+    updateSetting('randomMode', isRandom);
+    randomRangeInputs.style.display = isRandom ? 'flex' : 'none';
+    
+    // Update timer duration
+    totalSec = getCurrentDuration();
+    remaining = totalSec;
+    render();
+  }
+  
+  function onVolumeChange() {
+    const volume = parseInt(volumeSlider.value);
+    updateSetting('volume', volume);
+    masterVolume = volume / 100;
+    volumeDisplay.textContent = volume + '%';
+  }
+  
+  function onThemeChange() {
+    const theme = themeSelector.value;
+    updateSetting('theme', theme);
+    document.body.className = theme === 'dark' ? '' : `theme-${theme}`;
+  }
+  
+  async function onAlwaysOnTopChange() {
+    const enabled = alwaysOnTopCb.checked;
+    updateSetting('alwaysOnTop', enabled);
+    if (typeof ipcRenderer !== 'undefined') {
+      await ipcRenderer.invoke('set-always-on-top', enabled);
+    }
+  }
+  
+  async function openSoundsFolder() {
+    if (typeof ipcRenderer !== 'undefined') {
+      try {
+        await ipcRenderer.invoke('open-sounds-folder');
+      } catch (error) {
+        console.error('Failed to open sounds folder:', error);
+      }
+    }
+  }
+
+  // Initialize
+  loadSettings(); // Load saved settings first
+  loadAudioFiles();
+  
   // wire up
   totalSec = getCurrentDuration(); // Initialize with appropriate duration
   remaining = totalSec;
   render();
-  minsInp.addEventListener('change', () => {
+  
+  // Time input event listeners
+  hoursInp.addEventListener('change', () => {
+    updateTimeSettings();
     if (!randomModeCb.checked) {
       totalSec = setLengthFromInput();
       remaining = totalSec;
       render();
     }
   });
-  randomModeCb.addEventListener('change', () => {
-    totalSec = getCurrentDuration();
-    remaining = totalSec;
-    render();
+  
+  minsInp.addEventListener('change', () => {
+    updateTimeSettings();
+    if (!randomModeCb.checked) {
+      totalSec = setLengthFromInput();
+      remaining = totalSec;
+      render();
+    }
   });
+  
+  secsInp.addEventListener('change', () => {
+    updateTimeSettings();
+    if (!randomModeCb.checked) {
+      totalSec = setLengthFromInput();
+      remaining = totalSec;
+      render();
+    }
+  });
+  
+  // Random range event listeners
+  randomMinHours.addEventListener('change', updateRandomRangeSettings);
+  randomMinMinutes.addEventListener('change', updateRandomRangeSettings);
+  randomMinSeconds.addEventListener('change', updateRandomRangeSettings);
+  randomMaxHours.addEventListener('change', updateRandomRangeSettings);
+  randomMaxMinutes.addEventListener('change', updateRandomRangeSettings);
+  randomMaxSeconds.addEventListener('change', updateRandomRangeSettings);
+  
+  randomModeCb.addEventListener('change', onRandomModeChange);
+  
+  soundCb.addEventListener('change', () => {
+    updateSetting('sound', soundCb.checked);
+  });
+  
+  notifyCb.addEventListener('change', () => {
+    updateSetting('notify', notifyCb.checked);
+  });
+  
+  alwaysOnTopCb.addEventListener('change', onAlwaysOnTopChange);
+  volumeSlider.addEventListener('input', onVolumeChange);
+  themeSelector.addEventListener('change', onThemeChange);
+  openSoundsFolderBtn.addEventListener('click', openSoundsFolder);
+  
   startBtn.addEventListener('click', start);
   pauseBtn.addEventListener('click', pause);
   stopBtn.addEventListener('click', stop);
@@ -313,6 +722,11 @@
       startAudio = document.getElementById('startSound');
       reasonAudio = document.getElementById('reasonSound');
       punishmentAudio = document.getElementById('punishmentSound');
+      
+      // Set initial volume
+      startAudio.volume = masterVolume;
+      reasonAudio.volume = masterVolume;
+      punishmentAudio.volume = masterVolume;
     }
   }, { once: true });
 })();

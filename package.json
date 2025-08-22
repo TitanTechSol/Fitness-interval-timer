@@ -1,16 +1,46 @@
 {
   "name": "fitness-interval-timer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux",
+    "dist": "electron-builder --publish=never",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "build": {
+    "appId": "com.gakibbie.fitness-interval-timer",
+    "productName": "Fitness Interval Timer",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "timer.html",
+      "sounds/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "dir"
+    },
+    "compression": "store",
+    "removePackageKeywords": true
+  },
+  "keywords": [
+    "fitness",
+    "timer",
+    "interval",
+    "workout",
+    "electron"
+  ],
+  "author": "George Aaron Kibbie",
+  "license": "MIT",
+  "description": "A customizable fitness interval timer with audio cues and multiple themes",
   "devDependencies": {
-    "electron": "^37.3.1"
+    "electron": "^37.3.1",
+    "electron-builder": "^24.13.3"
   }
 }
