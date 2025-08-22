@@ -1,15 +1,16 @@
 # Fitness Interval Timer
 
-A professional desktop fitness interval timer built with Electron featuring customizable text-to-speech messages, multiple themes, and comprehensive user controls.
+A professional desktop fitness interval timer built with Electron featuring pure text-to-speech messaging, multiple themes, and comprehensive user controls. 100% offline with no audio files required.
 
 ## ✨ Key Features
 
-### 🗣️ Advanced Text-to-Speech System
-- **4-Message Sequence Playback**: Configurable TTS sequence from 1-4 message categories
-- **Smart Message Management**: Template-based system with check-ins, actions, and workouts
+### 🗣️ Pure Text-to-Speech System
+- **4-Message Sequence Playbook**: Configurable TTS sequence from 1-4 message categories
+- **Template-Based Messages**: Structured system loading from editable .md files only
 - **Voice Customization**: Select from Windows built-in voices with speed, pitch, and volume controls
 - **Message Editor**: Full-featured text editor for customizing all message categories
-- **100% Offline**: No internet connection required - uses system TTS voices
+- **100% Offline**: No internet connection or audio files required - pure system TTS
+- **No Hardcoded Messages**: All content loaded exclusively from user-editable .md files
 
 ### ⏰ Flexible Timer Controls  
 - **Fixed Timer Mode**: Set precise hours, minutes, and seconds
@@ -34,6 +35,7 @@ A professional desktop fitness interval timer built with Electron featuring cust
 - **Quick Add Messages**: Rapidly add single messages to any category
 - **Archive & Restore**: Backup system to restore original messages
 - **Test Functionality**: Preview messages with current voice settings
+- **Reset All Settings**: Complete settings reset functionality
 
 ## 🚀 Getting Started
 
@@ -54,9 +56,10 @@ A professional desktop fitness interval timer built with Electron featuring cust
    npm install
    ```
 
-3. **Set up messages** (Optional - includes default template-based messages)
-   - The app includes a comprehensive message template system
+3. **Set up messages** (Optional - includes default structured messages)
+   - The app includes a comprehensive message template system loaded from .md files
    - Use the message editor interface in settings to customize your experience
+   - All messages are stored in editable .md files - no hardcoded content
 
 ### Running the Application
 
@@ -100,8 +103,13 @@ The application uses a modular architecture for maintainability:
 
 ## 🗣️ Message System Guide
 
+### Pure TTS Architecture
+- **No Audio Files**: System uses only Windows built-in TTS voices
+- **File-Based Messages**: All content loaded from editable .md files
+- **No Fallbacks**: No hardcoded messages - complete user control over content
+
 ### Message Template Structure
-The app uses a structured template system: **[Check-in], If you are [Action], do [Workout]**
+The app uses a structured template system: **[Check-in] → [Action Detection] → [Workout Command]**
 
 ### Message Categories
 1. **Audio1.md**: Check-in messages (e.g., "What are you doing right now?")
@@ -144,16 +152,17 @@ The app uses a structured template system: **[Check-in], If you are [Action], do
 - **Theme Selection**: 5 professional themes
 - **Always on Top**: Window behavior control
 - **Notifications**: Desktop alert preferences
+- **Reset All Settings**: Complete configuration reset to defaults
 - **Window Size**: Minimum 600x600px, starts at 800x700px
 
 ## 💻 Technologies Used
 
 - **Electron**: Cross-platform desktop application framework
-- **HTML5 Audio API**: Advanced audio playback management  
+- **Web Speech API**: System TTS integration with voice control
 - **CSS Custom Properties**: Dynamic theming system
 - **LocalStorage**: Settings persistence
 - **IPC Communication**: Secure main/renderer process communication
-- **File System API**: Dynamic audio file management
+- **File System API**: Dynamic .md file loading and management
 - **Notification API**: Desktop notification support
 
 ## 🛠️ Development
@@ -161,8 +170,8 @@ The app uses a structured template system: **[Check-in], If you are [Action], do
 ### Code Structure
 The application follows a modular class-based architecture:
 - `IntervalTimer`: Core timing functionality
-- `AudioManager`: Audio playback and file management
-- `SettingsManager`: Configuration and persistence
+- `SpeechManager`: Pure TTS management and message loading from .md files
+- `SettingsManager`: Configuration and persistence with reset functionality
 - `UIManager`: Interface and navigation control
 - `NotificationManager`: System notification handling
 

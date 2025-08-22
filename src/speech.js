@@ -77,6 +77,8 @@ class SpeechManager {
 
   async loadMessages() {
     try {
+      console.log('Starting to load messages from .md files...');
+      
       // Load messages from .md files
       const messageFiles = [
         { key: 'audio1', file: 'sounds/Audio1.md' },
@@ -87,17 +89,19 @@ class SpeechManager {
 
       for (const { key, file } of messageFiles) {
         try {
+          console.log(`Loading ${file}...`);
           this.messages[key] = await this.loadMessageFile(file);
+          console.log(`Loaded ${this.messages[key].length} messages for ${key}:`, this.messages[key]);
         } catch (error) {
-          console.warn(`Could not load ${file}, using defaults:`, error);
-          this.messages[key] = this.getDefaultMessages(key);
+          console.warn(`Could not load ${file}:`, error);
+          this.messages[key] = [];
         }
       }
 
       // Update UI previews after messages load
       this.updateMessagePreviews();
 
-      console.log('Messages loaded:', this.messages);
+      console.log('Final messages loaded:', this.messages);
     } catch (error) {
       console.error('Error loading messages:', error);
       this.loadDefaultMessages();
@@ -106,10 +110,8 @@ class SpeechManager {
 
   async loadMessageFile(filePath) {
     if (!window.electronAPI) {
-      console.warn('File reading not available, using defaults');
-      return this.getDefaultMessages(filePath.includes('Audio1') ? 'audio1' : 
-                                   filePath.includes('Audio2') ? 'audio2' :
-                                   filePath.includes('Audio3') ? 'audio3' : 'audio4');
+      console.warn('File reading not available - no messages will be loaded');
+      return [];
     }
 
     try {
@@ -127,46 +129,18 @@ class SpeechManager {
   }
 
   getDefaultMessages(audioKey) {
-    const defaults = {
-      audio1: [
-        "What are you doing right now?",
-        "Time to check in!",
-        "Focus check - what's your priority?",
-        "Are you staying on track?",
-        "Quick accountability moment!"
-      ],
-      audio2: [
-        "Get back to work!",
-        "Stop procrastinating!",
-        "Focus on your goals!",
-        "You know what you need to do!",
-        "Time to be productive!"
-      ],
-      audio3: [
-        "Seriously? Again?",
-        "You're better than this!",
-        "No excuses this time!",
-        "Come on, focus!",
-        "Stop wasting time!"
-      ],
-      audio4: [
-        "You've got this!",
-        "Stay strong!",
-        "Keep pushing forward!",
-        "Great job staying focused!",
-        "You're doing amazing!"
-      ]
-    };
-    
-    return defaults[audioKey] || [];
+    // No hardcoded defaults - only load from .md files
+    console.warn(`No messages loaded for ${audioKey} - check that the .md file exists and is readable`);
+    return [];
   }
 
   loadDefaultMessages() {
-    // Fallback to hardcoded messages
-    this.messages.audio1 = this.getDefaultMessages('audio1');
-    this.messages.audio2 = this.getDefaultMessages('audio2');
-    this.messages.audio3 = this.getDefaultMessages('audio3');
-    this.messages.audio4 = this.getDefaultMessages('audio4');
+    // No hardcoded fallbacks - only use empty arrays if .md files can't be loaded
+    console.warn('Could not load message files - messages will be empty until files are available');
+    this.messages.audio1 = [];
+    this.messages.audio2 = [];
+    this.messages.audio3 = [];
+    this.messages.audio4 = [];
   }
 
   async playSequence() {
@@ -182,7 +156,7 @@ class SpeechManager {
         
         // Small delay between messages
         if (i < audioCount) {
-          await this.delay(1000); // 1 second pause
+          await this.delay(50); // 50 ms pause
         }
       }
     } catch (error) {
@@ -196,8 +170,11 @@ class SpeechManager {
         const audioKey = `audio${audioNumber}`;
         const messages = this.messages[audioKey];
         
+        console.log(`Attempting to speak ${audioKey}. Available messages:`, messages);
+        console.log(`Messages length: ${messages?.length || 0}`);
+        
         if (!messages || messages.length === 0) {
-          console.warn(`No messages available for ${audioKey}`);
+          console.warn(`No messages available for ${audioKey} - skipping speech`);
           resolve();
           return;
         }
@@ -207,6 +184,8 @@ class SpeechManager {
         const message = messages[randomIndex];
         
         console.log(`Speaking ${audioKey}: "${message}"`);
+        console.log('Current voice:', this.currentVoice?.name);
+        console.log('Speech settings:', this.settings);
         
         // Create speech utterance
         const utterance = new SpeechSynthesisUtterance(message);
@@ -214,6 +193,8 @@ class SpeechManager {
         utterance.rate = this.settings.rate;
         utterance.pitch = this.settings.pitch;
         utterance.volume = Math.max(0, Math.min(1, volume * this.settings.volume));
+        
+        console.log('Final utterance volume:', utterance.volume);
         
         // Handle completion
         utterance.onend = () => {
@@ -227,6 +208,7 @@ class SpeechManager {
         };
         
         // Speak the message
+        console.log('Calling speechSynthesis.speak()...');
         speechSynthesis.speak(utterance);
         
       } catch (error) {

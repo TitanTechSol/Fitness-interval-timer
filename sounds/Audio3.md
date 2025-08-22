@@ -8,7 +8,7 @@ Do 10 weighted squats
 Do 30 seconds of plank
 Do 30 mountain climbers
 Do 30 jumping jacks
-Do 30–60 second wall sit
+Do a 30 second wall sit
 Do 10 tricep dips on chair
 Do 10 chair step-ups each leg
 Do 10 seated knee raises
@@ -19,7 +19,7 @@ Do 10 decline pushups on chair
 Do 20 Russian twists
 Do 20 bicycle crunches
 Do 20 flutter kicks
-Do 20–30 seconds side plank each side
+Do 30 of seconds side plank each side
 Do 10 leg raises
 Do 10 dumbbell goblet squats
 Do 10 dumbbell overhead presses
@@ -40,7 +40,7 @@ Do 10 jump squats
 Do 30 seconds high knees
 Do 10 skater jumps each side
 Do 8 standing long jumps
-Do 30–60 seconds shadow boxing
+Do 30 of seconds shadow boxing
 Do 5 cat-cow stretches
 Do 30 second standing toe touch
 Do 30 second seated forward fold

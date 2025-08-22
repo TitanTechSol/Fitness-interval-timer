@@ -27,7 +27,7 @@ class SettingsManager {
       // App settings
       theme: 'dark',
       alwaysOnTop: false,
-      notifications: true,
+      notifications: false,
       autoRestart: true // Enable auto-restart by default
     };
     
@@ -185,6 +185,14 @@ class SettingsManager {
 
     // Speech controls
     this.setupSpeechControls();
+    
+    // Reset button
+    const resetBtn = document.getElementById('reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.resetToDefaults();
+      });
+    }
   }
 
   setupSpeechControls() {
@@ -353,6 +361,42 @@ class SettingsManager {
         }
       }
     }
+  }
+
+  resetToDefaults() {
+    // Confirm with user
+    if (!confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+      return;
+    }
+
+    // Reset settings to defaults
+    this.settings = { ...this.defaultSettings };
+    
+    // Save to localStorage
+    this.saveSettings();
+    
+    // Re-initialize the UI with default values
+    this.initializeUI();
+    
+    // Apply theme and other immediate changes
+    this.applyTheme(this.settings.theme);
+    
+    // Update speech manager settings if available
+    if (window.speechManager) {
+      window.speechManager.updateSettings({
+        rate: this.settings.speechRate,
+        pitch: this.settings.speechPitch,
+        volume: this.settings.volume,
+        voiceIndex: this.settings.speechVoice
+      });
+    }
+    
+    // Set always on top
+    if (window.electronAPI) {
+      window.electronAPI.setAlwaysOnTop(this.settings.alwaysOnTop);
+    }
+    
+    console.log('Settings reset to defaults');
   }
 }
 
