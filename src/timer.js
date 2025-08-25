@@ -51,6 +51,7 @@ class IntervalTimer {
       clearInterval(this.timer);
       this.timer = null;
     }
+
     this.remaining = this.totalSec;
     this.render();
     this.startBtn.disabled = false;

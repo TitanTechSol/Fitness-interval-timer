@@ -152,22 +152,87 @@ class SpeechManager {
   async playSequence() {
     const settings = window.settingsManager?.getSettings() || { audioCount: 3, sound: true, volume: 1.0 };
     
-    if (!settings.sound) return;
-
     const audioCount = Math.min(settings.audioCount || 3, 4);
+    const captionMessages = []; // WI-003: Collect messages for caption display
+    
+    // WI-003: Pre-select all messages that will be spoken and show caption immediately
+    for (let i = 1; i <= audioCount; i++) {
+      const audioKey = `audio${i}`;
+      const messages = this.messages[audioKey];
+      
+      if (messages && messages.length > 0) {
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        const message = messages[randomIndex];
+        captionMessages.push(message);
+      }
+    }
+
+    // WI-003: Show caption immediately when timer completes (before speech starts)
+    if (captionMessages.length > 0 && window.captionManager) {
+      window.captionManager.showMessages(captionMessages);
+    }
+
+    // Now play the speech if sound is enabled
+    if (!settings.sound) return;
     
     try {
-      for (let i = 1; i <= audioCount; i++) {
-        await this.speak(i, settings.volume);
+      // Speak the pre-selected messages
+      for (let i = 0; i < captionMessages.length; i++) {
+        await this.speakMessage(captionMessages[i], settings.volume);
         
         // Small delay between messages
-        if (i < audioCount) {
+        if (i < captionMessages.length - 1) {
           await this.delay(50); // 50 ms pause
         }
       }
     } catch (error) {
       console.error('Error playing speech sequence:', error);
     }
+  }
+
+  // WI-003: Method to speak a specific pre-selected message
+  async speakMessage(message, volume = 1.0) {
+    return new Promise((resolve) => {
+      try {
+        if (!message) {
+          console.warn('No message provided - skipping speech');
+          resolve(null);
+          return;
+        }
+
+        console.log(`Speaking message: "${message}"`);
+        console.log('Current voice:', this.currentVoice?.name);
+        console.log('Speech settings:', this.settings);
+        
+        // Create speech utterance
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.voice = this.currentVoice;
+        utterance.rate = this.settings.rate;
+        utterance.pitch = this.settings.pitch;
+        utterance.volume = Math.max(0, Math.min(1, volume * this.settings.volume));
+        
+        console.log('Final utterance volume:', utterance.volume);
+        
+        // Handle completion
+        utterance.onend = () => {
+          console.log(`Finished speaking: "${message}"`);
+          resolve(message);
+        };
+        
+        utterance.onerror = (event) => {
+          console.error('Speech synthesis error:', event);
+          resolve(null);
+        };
+        
+        // Speak the message
+        console.log('Calling speechSynthesis.speak()...');
+        speechSynthesis.speak(utterance);
+        
+      } catch (error) {
+        console.error(`Error speaking message:`, error);
+        resolve(null);
+      }
+    });
   }
 
   async speak(audioNumber, volume = 1.0) {
@@ -181,7 +246,7 @@ class SpeechManager {
         
         if (!messages || messages.length === 0) {
           console.warn(`No messages available for ${audioKey} - skipping speech`);
-          resolve();
+          resolve(null); // WI-003: Return null when no message
           return;
         }
 
@@ -205,12 +270,12 @@ class SpeechManager {
         // Handle completion
         utterance.onend = () => {
           console.log(`Finished speaking: "${message}"`);
-          resolve();
+          resolve(message); // WI-003: Return the spoken message
         };
         
         utterance.onerror = (event) => {
           console.error('Speech synthesis error:', event);
-          resolve(); // Don't block the sequence
+          resolve(null); // WI-003: Return null on error
         };
         
         // Speak the message
@@ -219,7 +284,7 @@ class SpeechManager {
         
       } catch (error) {
         console.error(`Error speaking ${audioNumber}:`, error);
-        resolve();
+        resolve(null); // WI-003: Return null on error
       }
     });
   }

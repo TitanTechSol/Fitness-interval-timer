@@ -24,6 +24,7 @@ class FitnessIntervalTimer {
       this.components.notificationManager = new NotificationManager();
       this.components.uiManager = new UIManager();
       this.components.messageEditor = new MessageEditorManager(); // Phase 3 addition
+      this.components.captionManager = new TimerCaptionManager(); // WI-003 addition
       this.components.timer = new IntervalTimer();
 
       // Make components globally available
@@ -33,6 +34,7 @@ class FitnessIntervalTimer {
       window.notificationManager = this.components.notificationManager;
       window.uiManager = this.components.uiManager;
       window.messageEditorManager = this.components.messageEditor; // Phase 3 global access
+      window.captionManager = this.components.captionManager; // WI-003 global access
       window.intervalTimer = this.components.timer;
 
       console.log('All components initialized successfully');

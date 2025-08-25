@@ -136,6 +136,53 @@ body {
   text-shadow: 0 0 20px rgba(0, 122, 204, 0.3);
 }
 
+/* Timer Caption Area */
+.timer-caption {
+  margin: 20px auto 0;
+  max-width: 600px;
+  padding: 0 20px;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.timer-caption.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.timer-caption.fade-out {
+  opacity: 0;
+}
+
+.caption-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.caption-messages {
+  color: var(--text-primary);
+  font-size: 1.1em;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  min-height: 20px;
+}
+
+.caption-messages .message-sequence {
+  display: inline;
+}
+
+.caption-messages .message-text {
+  color: var(--text-secondary);
+}
+
+.caption-messages .message-separator {
+  color: var(--accent-color);
+  margin: 0 8px;
+  font-weight: bold;
+}
+
 /* Controls */
 .controls {
   display: flex;
