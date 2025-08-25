@@ -26,6 +26,12 @@ class FitnessIntervalTimer {
       this.components.messageEditor = new MessageEditorManager(); // Phase 3 addition
       this.components.captionManager = new TimerCaptionManager(); // WI-003 addition
       this.components.timer = new IntervalTimer();
+      
+      // Initialize keyboard shortcuts after timer (WI-006)
+      this.components.keyboardManager = new KeyboardShortcutManager(
+        this.components.timer, 
+        this.components.settingsManager
+      );
 
       // Make components globally available
       window.settingsManager = this.components.settingsManager;
@@ -34,7 +40,8 @@ class FitnessIntervalTimer {
       window.notificationManager = this.components.notificationManager;
       window.uiManager = this.components.uiManager;
       window.messageEditorManager = this.components.messageEditor; // Phase 3 global access
-      window.captionManager = this.components.captionManager; // WI-003 global access
+      window.timerCaptionManager = this.components.captionManager; // WI-003 global access (fixed name)
+      window.keyboardShortcutManager = this.components.keyboardManager; // WI-006 global access
       window.intervalTimer = this.components.timer;
 
       console.log('All components initialized successfully');

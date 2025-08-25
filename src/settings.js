@@ -27,6 +27,7 @@ class SettingsManager {
       // App settings
       theme: 'dark',
       alwaysOnTop: false,
+      keyboardShortcuts: true, // Enable keyboard shortcuts by default
       notifications: false,
       autoRestart: true // Enable auto-restart by default
     };
@@ -93,6 +94,7 @@ class SettingsManager {
     this.updateSliderSwitch('soundSwitch', this.settings.sound);
     this.updateSliderSwitch('notifySwitch', this.settings.notifications);
     this.updateSliderSwitch('alwaysOnTopSwitch', this.settings.alwaysOnTop);
+    this.updateSliderSwitch('keyboardShortcutsSwitch', this.settings.keyboardShortcuts);
     this.updateSliderSwitch('autoRestartSwitch', this.settings.autoRestart);
     
     // Set volume
@@ -153,6 +155,7 @@ class SettingsManager {
     this.setupSliderSwitch('soundSwitch', 'sound');
     this.setupSliderSwitch('notifySwitch', 'notifications');
     this.setupSliderSwitch('alwaysOnTopSwitch', 'alwaysOnTop');
+    this.setupSliderSwitch('keyboardShortcutsSwitch', 'keyboardShortcuts');
     this.setupSliderSwitch('autoRestartSwitch', 'autoRestart');
 
     // Volume slider
@@ -310,6 +313,13 @@ class SettingsManager {
         }
         break;
         
+      case 'keyboardShortcuts':
+        // Enable/disable keyboard shortcuts
+        if (window.keyboardShortcutManager) {
+          window.keyboardShortcutManager.setEnabled(value);
+        }
+        break;
+        
       case 'randomMode':
         const randomRangeInputs = document.getElementById('randomRangeInputs');
         if (randomRangeInputs) {
@@ -395,7 +405,7 @@ class SettingsManager {
     if (window.electronAPI) {
       window.electronAPI.setAlwaysOnTop(this.settings.alwaysOnTop);
     }
-    
+
     console.log('Settings reset to defaults');
   }
 }

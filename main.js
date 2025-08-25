@@ -29,6 +29,23 @@ ipcMain.handle('set-always-on-top', (event, enabled) => {
   return false;
 });
 
+ipcMain.handle('toggle-always-on-top', (event) => {
+  if (mainWindow) {
+    const currentState = mainWindow.isAlwaysOnTop();
+    const newState = !currentState;
+    mainWindow.setAlwaysOnTop(newState);
+    return newState;
+  }
+  return false;
+});
+
+ipcMain.handle('get-always-on-top', (event) => {
+  if (mainWindow) {
+    return mainWindow.isAlwaysOnTop();
+  }
+  return false;
+});
+
 ipcMain.handle('open-sounds-folder', () => {
   const soundsPath = path.join(__dirname, 'sounds');
   shell.openPath(soundsPath);

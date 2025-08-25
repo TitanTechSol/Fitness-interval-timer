@@ -45,6 +45,7 @@
         <div class="settings-nav">
           <button class="nav-btn active" data-page="timer">Timer</button>
           <button class="nav-btn" data-page="audio">Audio</button>
+          <button class="nav-btn" data-page="shortcuts">Shortcuts</button>
         </div>
 
         <!-- Timer Settings Page -->
@@ -317,6 +318,55 @@
           </div>
 
         </div>
+
+        <!-- Shortcuts Settings Page -->
+        <div class="settings-page" id="shortcutsPage">
+          
+          <!-- Enable/Disable Shortcuts -->
+          <div class="setting-group">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="setting-row">
+              <span class="setting-label">Enable Keyboard Shortcuts</span>
+              <div class="slider-switch active" id="keyboardShortcutsSwitch"></div>
+            </div>
+            <p class="setting-description">
+              Use keyboard shortcuts to control the timer even when the app is running in the background. 
+              Perfect for staying productive in other applications!
+            </p>
+          </div>
+
+          <!-- Shortcuts List -->
+          <div class="setting-group">
+            <h3>⌨️ Available Shortcuts</h3>
+            <div class="shortcuts-list" id="shortcutsList">
+              <!-- Shortcuts will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Advanced Tips -->
+          <div class="setting-group">
+            <h3>💡 Tips</h3>
+            <div class="tips-list">
+              <div class="tip">
+                <span class="tip-icon">🎯</span>
+                <span><strong>Global shortcuts:</strong> These work even when the timer is minimized or in the background</span>
+              </div>
+              <div class="tip">
+                <span class="tip-icon">🏢</span>
+                <span><strong>Office-friendly:</strong> Key combinations chosen to avoid conflicts with Word, Excel, and other apps</span>
+              </div>
+              <div class="tip">
+                <span class="tip-icon">⚡</span>
+                <span><strong>Quick control:</strong> Start/pause/stop your timer without switching windows</span>
+              </div>
+              <div class="tip">
+                <span class="tip-icon">🔄</span>
+                <span><strong>Disable anytime:</strong> Toggle shortcuts off if you encounter conflicts with other software</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
@@ -374,6 +424,7 @@
   <script src="src/ui.js"></script>
   <script src="src/messageEditor.js"></script>
   <script src="src/caption.js"></script>
+  <script src="src/keyboard.js"></script>
   <script src="src/app.js"></script>
 </body>
 </html>

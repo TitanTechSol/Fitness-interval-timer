@@ -102,6 +102,22 @@ class UIManager {
     if (targetPage) targetPage.classList.add('active');
     if (targetButton) targetButton.classList.add('active');
     
+    // Special handling for shortcuts page
+    if (pageId === 'shortcuts') {
+      console.log('Showing shortcuts page - populating shortcuts list');
+      try {
+        if (typeof this.populateShortcutsList === 'function') {
+          this.populateShortcutsList();
+        } else {
+          console.log('populateShortcutsList method not found, using fallback');
+          this.populateShortcutsListFallback();
+        }
+      } catch (error) {
+        console.error('Error populating shortcuts list:', error);
+        this.populateShortcutsListFallback();
+      }
+    }
+    
     this.currentSettingsPage = pageId;
   }
 
@@ -129,6 +145,77 @@ class UIManager {
       notification.style.animation = 'slideOut 0.3s ease';
       setTimeout(() => notification.remove(), 300);
     }, 3000);
+  }
+
+  populateShortcutsList() {
+    const shortcutsListElement = document.getElementById('shortcutsList');
+    if (!shortcutsListElement) {
+      console.log('Shortcuts list element not found!');
+      return;
+    }
+
+    // Get shortcuts from keyboard manager, with fallback
+    let shortcuts;
+    if (window.keyboardShortcutManager) {
+      shortcuts = window.keyboardShortcutManager.getShortcutsList();
+      console.log('Got shortcuts from keyboard manager:', shortcuts);
+    } else {
+      shortcuts = this.getDefaultShortcuts();
+      console.log('Using default shortcuts (keyboard manager not available)');
+    }
+    
+    let html = '';
+    shortcuts.forEach(shortcut => {
+      html += `
+        <div class="shortcut-item">
+          <div class="shortcut-key">${shortcut.key}</div>
+          <div class="shortcut-description">${shortcut.description}</div>
+          <div class="shortcut-icon">${shortcut.icon}</div>
+        </div>
+      `;
+    });
+
+    shortcutsListElement.innerHTML = html;
+    console.log('Populated shortcuts list with HTML:', html.length, 'characters');
+  }
+
+  getDefaultShortcuts() {
+    // Fallback shortcuts list if keyboard manager isn't available
+    return [
+      { key: 'Ctrl+Shift+F6', description: 'Start/Resume Timer', icon: '▶️' },
+      { key: 'Ctrl+Shift+F7', description: 'Pause Timer', icon: '⏸️' },
+      { key: 'Ctrl+Shift+F8', description: 'Stop Timer', icon: '⏹️' },
+      { key: 'Ctrl+Shift+F9', description: 'Open Settings', icon: '⚙️' },
+      { key: 'Ctrl+Shift+F10', description: 'Reset Timer', icon: '🔄' },
+      { key: 'Ctrl+Shift+F11', description: 'Test Audio', icon: '🔊' },
+      { key: 'Ctrl+Alt+F6', description: 'Toggle Always On Top', icon: '📌' },
+      { key: 'Ctrl+Alt+F7', description: 'Clear Messages', icon: '✨' }
+    ];
+  }
+
+  populateShortcutsListFallback() {
+    const shortcutsListElement = document.getElementById('shortcutsList');
+    if (!shortcutsListElement) {
+      console.log('Shortcuts list element not found!');
+      return;
+    }
+
+    const shortcuts = this.getDefaultShortcuts();
+    console.log('Using fallback method to populate shortcuts');
+    
+    let html = '';
+    shortcuts.forEach(shortcut => {
+      html += `
+        <div class="shortcut-item">
+          <div class="shortcut-key">${shortcut.key}</div>
+          <div class="shortcut-description">${shortcut.description}</div>
+          <div class="shortcut-icon">${shortcut.icon}</div>
+        </div>
+      `;
+    });
+
+    shortcutsListElement.innerHTML = html;
+    console.log('Fallback: Populated shortcuts list with', shortcuts.length, 'shortcuts');
   }
 }
 

@@ -4,6 +4,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
   setAlwaysOnTop: (enabled) => ipcRenderer.invoke('set-always-on-top', enabled),
+  toggleAlwaysOnTop: () => ipcRenderer.invoke('toggle-always-on-top'),
+  getAlwaysOnTop: () => ipcRenderer.invoke('get-always-on-top'),
   openSoundsFolder: () => ipcRenderer.invoke('open-sounds-folder'),
   
   // Text file operations for message management
