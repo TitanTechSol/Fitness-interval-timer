@@ -21,6 +21,10 @@ class FitnessIntervalTimer {
       // Initialize in the correct order
       this.components.settingsManager = new SettingsManager();
       this.components.settingsTabManager = new SettingsTabManager(); // WI-005.2 addition
+      
+      // WI-005.4: Register dynamic tabs (parallel to static system)
+      this.registerDynamicTabs();
+      
       this.components.speechManager = new SpeechManager(); // Changed from AudioManager
       this.components.notificationManager = new NotificationManager();
       this.components.uiManager = new UIManager();
@@ -48,12 +52,28 @@ class FitnessIntervalTimer {
 
       console.log('All components initialized successfully');
 
+      // WI-005.4: Register dynamic tabs (parallel to static system)
+      this.registerDynamicTabs();
+
       // Initialize the first render
       this.components.timer.render();
 
     } catch (error) {
       console.error('Error initializing components:', error);
       this.showErrorMessage('Failed to initialize application. Please refresh the page.');
+    }
+  }
+
+  registerDynamicTabs() {
+    try {
+      // Register dynamic tabs with the tab manager (parallel to static system)
+      this.components.settingsTabManager.registerDynamicTab('timer', TimerTab);
+      
+      // Note: Dynamic mode is disabled by default - static system continues to work
+      console.log('FitnessIntervalTimer: Dynamic tabs registered (static mode active)');
+    } catch (error) {
+      console.error('Failed to register dynamic tabs:', error);
+      // Don't throw - let the static system continue working
     }
   }
 

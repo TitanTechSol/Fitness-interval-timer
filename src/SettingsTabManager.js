@@ -5,6 +5,10 @@ class SettingsTabManager {
     this.registeredTabs = new Map();
     this.isInitialized = false;
     
+    // WI-005.4: Dynamic content loading support
+    this.dynamicTabs = new Map();
+    this.isDynamicModeEnabled = false; // Feature flag for gradual migration
+    
     console.log('SettingsTabManager: Constructor initialized');
   }
 
@@ -107,7 +111,68 @@ class SettingsTabManager {
     console.log('SettingsTabManager Debug State:', {
       currentTab: this.currentTab,
       isInitialized: this.isInitialized,
-      registeredTabs: Array.from(this.registeredTabs.keys())
+      registeredTabs: Array.from(this.registeredTabs.keys()),
+      dynamicTabs: Array.from(this.dynamicTabs.keys()),
+      isDynamicModeEnabled: this.isDynamicModeEnabled
     });
+  }
+
+  // WI-005.4: Dynamic tab management methods
+  registerDynamicTab(tabId, tabModuleClass) {
+    if (!tabModuleClass) {
+      console.error(`Cannot register dynamic tab '${tabId}' - no module class provided`);
+      return false;
+    }
+
+    this.dynamicTabs.set(tabId, {
+      moduleClass: tabModuleClass,
+      instance: null,
+      isLoaded: false
+    });
+
+    console.log(`SettingsTabManager: Dynamic tab '${tabId}' registered`);
+    return true;
+  }
+
+  async loadDynamicTab(tabId) {
+    const tabInfo = this.dynamicTabs.get(tabId);
+    if (!tabInfo) {
+      console.warn(`Dynamic tab '${tabId}' not registered`);
+      return false;
+    }
+
+    try {
+      // Create instance if not already created
+      if (!tabInfo.instance) {
+        tabInfo.instance = new tabInfo.moduleClass();
+      }
+
+      // Find the content container
+      const container = document.getElementById(tabId + 'Page');
+      if (!container) {
+        console.error(`Container '${tabId}Page' not found for dynamic tab`);
+        return false;
+      }
+
+      // Initialize the tab content
+      await tabInfo.instance.initialize(container);
+      tabInfo.isLoaded = true;
+
+      console.log(`SettingsTabManager: Dynamic tab '${tabId}' loaded successfully`);
+      return true;
+    } catch (error) {
+      console.error(`Failed to load dynamic tab '${tabId}':`, error);
+      return false;
+    }
+  }
+
+  enableDynamicMode() {
+    this.isDynamicModeEnabled = true;
+    console.log('SettingsTabManager: Dynamic mode enabled');
+  }
+
+  disableDynamicMode() {
+    this.isDynamicModeEnabled = false;
+    console.log('SettingsTabManager: Dynamic mode disabled - using static content');
   }
 }
