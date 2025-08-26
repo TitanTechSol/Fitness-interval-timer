@@ -77,6 +77,11 @@ class UIManager {
       mainView.style.display = 'none';
       settingsView.style.display = 'block';
       this.currentView = 'settings';
+      
+      // Notify SettingsTabManager that settings are opened (WI-005.2)
+      if (window.settingsTabManager) {
+        window.settingsTabManager.onSettingsOpen();
+      }
     } else {
       mainView.style.display = 'block';
       settingsView.style.display = 'none';
@@ -85,24 +90,29 @@ class UIManager {
   }
 
   showSettingsPage(pageId) {
-    // Hide all pages
-    document.querySelectorAll('.settings-page').forEach(page => {
-      page.classList.remove('active');
-    });
+    // Use SettingsTabManager if available (WI-005.2), otherwise fallback to legacy behavior
+    if (window.settingsTabManager) {
+      window.settingsTabManager.showTab(pageId);
+    } else {
+      // Legacy behavior - Hide all pages
+      document.querySelectorAll('.settings-page').forEach(page => {
+        page.classList.remove('active');
+      });
+      
+      // Remove active class from all nav buttons
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected page and activate button
+      const targetPage = document.getElementById(pageId + 'Page');
+      const targetButton = document.querySelector(`[data-page="${pageId}"]`);
+      
+      if (targetPage) targetPage.classList.add('active');
+      if (targetButton) targetButton.classList.add('active');
+    }
     
-    // Remove active class from all nav buttons
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    
-    // Show selected page and activate button
-    const targetPage = document.getElementById(pageId + 'Page');
-    const targetButton = document.querySelector(`[data-page="${pageId}"]`);
-    
-    if (targetPage) targetPage.classList.add('active');
-    if (targetButton) targetButton.classList.add('active');
-    
-    // Special handling for shortcuts page
+    // Special handling for shortcuts page (preserve existing functionality)
     if (pageId === 'shortcuts') {
       console.log('Showing shortcuts page - populating shortcuts list');
       try {

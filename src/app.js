@@ -20,6 +20,7 @@ class FitnessIntervalTimer {
     try {
       // Initialize in the correct order
       this.components.settingsManager = new SettingsManager();
+      this.components.settingsTabManager = new SettingsTabManager(); // WI-005.2 addition
       this.components.speechManager = new SpeechManager(); // Changed from AudioManager
       this.components.notificationManager = new NotificationManager();
       this.components.uiManager = new UIManager();
@@ -35,6 +36,7 @@ class FitnessIntervalTimer {
 
       // Make components globally available
       window.settingsManager = this.components.settingsManager;
+      window.settingsTabManager = this.components.settingsTabManager; // WI-005.2 global access
       window.speechManager = this.components.speechManager; // Changed from audioManager
       window.audioManager = this.components.speechManager; // Keep compatibility alias
       window.notificationManager = this.components.notificationManager;
