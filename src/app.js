@@ -70,6 +70,8 @@ class FitnessIntervalTimer {
       this.components.settingsTabManager.registerDynamicTab('timer', TimerTab);
       this.components.settingsTabManager.registerDynamicTab('audio', AudioTab); // WI-005.4 Phase 3
       this.components.settingsTabManager.registerDynamicTab('shortcuts', ShortcutsTab); // WI-005.4 Phase 3
+      this.components.settingsTabManager.registerDynamicTab('workout', WorkoutTab); // WI-005.4 Phase 3
+      this.components.settingsTabManager.registerDynamicTab('system', SystemTab); // WI-005.4 Phase 3
       
       // WI-005.4 Phase 2: Enable dynamic mode for Timer tab only (SAFE TESTING)
       // NOW SAFE TO RE-ENABLE - we fixed the duplicate tab switching issue
@@ -97,7 +99,9 @@ class FitnessIntervalTimer {
           this.components.settingsTabManager.enableDynamicForTab('timer');
           this.components.settingsTabManager.enableDynamicForTab('audio');
           this.components.settingsTabManager.enableDynamicForTab('shortcuts');
-          console.log('Dynamic mode enabled for timer, audio, and shortcuts tabs');
+          this.components.settingsTabManager.enableDynamicForTab('workout');
+          this.components.settingsTabManager.enableDynamicForTab('system');
+          console.log('Dynamic mode enabled for all tabs');
         },
         disable: () => {
           this.components.settingsTabManager.disableDynamicMode();
@@ -107,23 +111,27 @@ class FitnessIntervalTimer {
           this.components.settingsTabManager.resetDynamicTab('timer');
           this.components.settingsTabManager.resetDynamicTab('audio');
           this.components.settingsTabManager.resetDynamicTab('shortcuts');
-          console.log('Timer, Audio, and Shortcuts tabs reset - will reload on next access');
+          this.components.settingsTabManager.resetDynamicTab('workout');
+          this.components.settingsTabManager.resetDynamicTab('system');
+          console.log('All tabs reset - will reload on next access');
         },
         status: () => {
           this.components.settingsTabManager.debugState();
-          console.log('🔍 Current mode: Dynamic system active for Timer, Audio, and Shortcuts tabs');
+          console.log('🔍 Current mode: Dynamic system active for all tabs');
         },
         forceReload: () => {
           this.components.settingsTabManager.resetDynamicTab('timer');
           this.components.settingsTabManager.resetDynamicTab('audio');
           this.components.settingsTabManager.resetDynamicTab('shortcuts');
+          this.components.settingsTabManager.resetDynamicTab('workout');
+          this.components.settingsTabManager.resetDynamicTab('system');
           // Switch away and back to trigger reload
           this.components.settingsTabManager.showTab('shortcuts');
           setTimeout(() => this.components.settingsTabManager.showTab('timer'), 100);
         }
       };
       
-      console.log('🧪 Smart dynamic mode enabled for Timer, Audio, and Shortcuts tabs. Available commands:');
+      console.log('🧪 Smart dynamic mode enabled for all tabs. Available commands:');
       console.log('  window.testDynamicMode.status() - Check current state');
       console.log('  💡 Mode: Will use static content (working buttons) but run through dynamic system');
     } catch (error) {
