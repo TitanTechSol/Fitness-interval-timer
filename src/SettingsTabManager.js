@@ -29,26 +29,25 @@ class SettingsTabManager {
   }
 
   setupNavigation() {
-    // Set up navigation button event listeners
+    // WI-005.4 Fix: Don't add duplicate event listeners!
+    // UIManager already handles navigation button clicks and calls our showTab() method
+    // Adding our own listeners creates duplicate tab switching
+    
     const navButtons = document.querySelectorAll('.nav-btn');
     
+    // Just register the tabs without adding duplicate event listeners
     navButtons.forEach(button => {
       const pageId = button.dataset.page;
       if (pageId) {
-        button.addEventListener('click', (e) => {
-          e.preventDefault();
-          this.showTab(pageId);
-        });
-        
-        // Register tab in our system
+        // Register tab in our system (no event listener needed)
         this.registerTab(pageId, button);
       }
     });
 
-    console.log(`SettingsTabManager: Navigation setup complete (${navButtons.length} buttons)`);
+    console.log(`SettingsTabManager: Navigation registered (${navButtons.length} buttons) - UIManager handles clicks`);
   }
 
-  showTab(tabId) {
+  async showTab(tabId) {
     if (!tabId) {
       console.warn('SettingsTabManager: No tab ID provided');
       return;
@@ -63,6 +62,16 @@ class SettingsTabManager {
       // Show target page
       const targetPage = document.getElementById(tabId + 'Page');
       if (targetPage) {
+        // WI-005.4: Check if dynamic mode is enabled for this specific tab
+        if (this.isDynamicModeEnabled && this.dynamicTabs.has(tabId)) {
+          console.log(`SettingsTabManager: Loading dynamic content for '${tabId}' tab`);
+          const success = await this.loadDynamicTab(tabId);
+          
+          if (!success) {
+            console.warn(`SettingsTabManager: Dynamic loading failed for '${tabId}', keeping static content`);
+          }
+        }
+        
         targetPage.classList.add('active');
         this.currentTab = tabId;
         this.updateActiveNavigation(tabId);
@@ -142,6 +151,12 @@ class SettingsTabManager {
     }
 
     try {
+      // Check if already loaded to prevent multiple initializations
+      if (tabInfo.isLoaded) {
+        console.log(`Dynamic tab '${tabId}' already loaded, skipping`);
+        return true;
+      }
+
       // Create instance if not already created
       if (!tabInfo.instance) {
         tabInfo.instance = new tabInfo.moduleClass();
@@ -174,5 +189,33 @@ class SettingsTabManager {
   disableDynamicMode() {
     this.isDynamicModeEnabled = false;
     console.log('SettingsTabManager: Dynamic mode disabled - using static content');
+  }
+
+  // WI-005.4 Phase 2: Enable dynamic mode for specific tabs only (safe testing)
+  enableDynamicForTab(tabId) {
+    if (!this.dynamicTabs.has(tabId)) {
+      console.warn(`Cannot enable dynamic mode for '${tabId}' - tab not registered`);
+      return false;
+    }
+    
+    // Enable global dynamic mode if not already enabled
+    if (!this.isDynamicModeEnabled) {
+      this.enableDynamicMode();
+    }
+    
+    console.log(`SettingsTabManager: Dynamic mode enabled for '${tabId}' tab`);
+    return true;
+  }
+
+  // Reset dynamic tab loading state (for testing/debugging)
+  resetDynamicTab(tabId) {
+    const tabInfo = this.dynamicTabs.get(tabId);
+    if (tabInfo) {
+      tabInfo.isLoaded = false;
+      if (tabInfo.instance) {
+        tabInfo.instance.destroy();
+      }
+      console.log(`SettingsTabManager: Reset dynamic tab '${tabId}'`);
+    }
   }
 }

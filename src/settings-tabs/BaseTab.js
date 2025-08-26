@@ -25,14 +25,26 @@ class BaseTab {
 
     try {
       this.contentContainer = container;
-      const content = this.generateContent();
-      container.innerHTML = content;
       
-      // Small delay to ensure DOM is ready
-      await new Promise(resolve => setTimeout(resolve, 10));
+      // WI-005.4 SAFE APPROACH: Check if container already has content with working events
+      const hasExistingContent = container.children.length > 0;
       
-      this.bindEvents();
-      this.isInitialized = true;
+      if (hasExistingContent) {
+        console.log(`${this.tabId} tab: Using existing static content (preserving event bindings)`);
+        // Don't replace existing HTML - just mark as initialized
+        this.isInitialized = true;
+        this.bindEvents(); // This can add additional functionality if needed
+      } else {
+        console.log(`${this.tabId} tab: Loading dynamic content`);
+        const content = this.generateContent();
+        container.innerHTML = content;
+        
+        // Small delay to ensure DOM is ready
+        await new Promise(resolve => setTimeout(resolve, 10));
+        
+        this.bindEvents();
+        this.isInitialized = true;
+      }
       
       console.log(`${this.tabId} tab initialized successfully`);
     } catch (error) {

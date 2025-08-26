@@ -69,11 +69,56 @@ class FitnessIntervalTimer {
       // Register dynamic tabs with the tab manager (parallel to static system)
       this.components.settingsTabManager.registerDynamicTab('timer', TimerTab);
       
-      // Note: Dynamic mode is disabled by default - static system continues to work
-      console.log('FitnessIntervalTimer: Dynamic tabs registered (static mode active)');
+      // WI-005.4 Phase 2: Enable dynamic mode for Timer tab only (SAFE TESTING)
+      // NOW SAFE TO RE-ENABLE - we fixed the duplicate tab switching issue
+      this.testDynamicTimerTab();
+      
+      console.log('🎯 Dynamic mode re-enabled with proper event handling');
+      
+      console.log('FitnessIntervalTimer: Dynamic tabs registered');
     } catch (error) {
       console.error('Failed to register dynamic tabs:', error);
       // Don't throw - let the static system continue working
+    }
+  }
+
+  // WI-005.4 Phase 2: Safe testing method for Timer tab dynamic loading
+  testDynamicTimerTab() {
+    try {
+      console.log('🧪 TESTING: Enabling smart dynamic mode for Timer tab');
+      this.components.settingsTabManager.enableDynamicForTab('timer');
+      
+      // Make test controls globally available for debugging
+      window.testDynamicMode = {
+        enable: () => {
+          this.components.settingsTabManager.enableDynamicForTab('timer');
+          console.log('Dynamic mode enabled for timer tab');
+        },
+        disable: () => {
+          this.components.settingsTabManager.disableDynamicMode();
+          console.log('Dynamic mode disabled');
+        },
+        reset: () => {
+          this.components.settingsTabManager.resetDynamicTab('timer');
+          console.log('Timer tab reset - will reload on next access');
+        },
+        status: () => {
+          this.components.settingsTabManager.debugState();
+          console.log('🔍 Current mode: Dynamic system active, but using static content if available');
+        },
+        forceReload: () => {
+          this.components.settingsTabManager.resetDynamicTab('timer');
+          // Switch away and back to trigger reload
+          this.components.settingsTabManager.showTab('audio');
+          setTimeout(() => this.components.settingsTabManager.showTab('timer'), 100);
+        }
+      };
+      
+      console.log('🧪 Smart dynamic mode enabled. Available commands:');
+      console.log('  window.testDynamicMode.status() - Check current state');
+      console.log('  💡 Mode: Will use static content (working buttons) but run through dynamic system');
+    } catch (error) {
+      console.error('Dynamic tab test failed (fallback to static):', error);
     }
   }
 

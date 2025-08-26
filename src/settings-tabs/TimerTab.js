@@ -102,10 +102,34 @@ class TimerTab extends BaseTab {
   }
 
   bindEvents() {
-    // Note: In the parallel system phase, we'll let the existing SettingsManager handle events
-    // This ensures we don't create conflicts with the static system
+    // WI-005.4 SMART APPROACH: Work with existing system, don't replace it
+    console.log('TimerTab: Binding events for dynamic content (preserving existing functionality)');
     
-    // We can add specific dynamic content event handling here later if needed
-    console.log('TimerTab: Events will be handled by existing SettingsManager for now');
+    try {
+      // If we're using existing static content, the event bindings already work!
+      // We can add additional dynamic functionality here if needed
+      
+      if (this.contentContainer && this.contentContainer.children.length > 0) {
+        console.log('TimerTab: Static content detected - event bindings already work');
+        
+        // Optional: Add any additional dynamic functionality here
+        // For example, we could add enhanced features that aren't in the static version
+        
+        console.log('TimerTab: Successfully initialized with existing static content');
+      } else {
+        console.log('TimerTab: No existing content - need to establish SettingsManager connections');
+        
+        // This path is for when we truly have dynamic content
+        if (window.settingsManager) {
+          setTimeout(() => {
+            window.settingsManager.initializeUI();
+            window.settingsManager.loadSettings();
+            console.log('TimerTab: Re-initialized SettingsManager for dynamic content');
+          }, 50);
+        }
+      }
+    } catch (error) {
+      console.error('TimerTab: Error binding events:', error);
+    }
   }
 }
