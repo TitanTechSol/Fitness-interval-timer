@@ -68,6 +68,7 @@ class FitnessIntervalTimer {
     try {
       // Register dynamic tabs with the tab manager (parallel to static system)
       this.components.settingsTabManager.registerDynamicTab('timer', TimerTab);
+      this.components.settingsTabManager.registerDynamicTab('audio', AudioTab); // WI-005.4 Phase 3
       
       // WI-005.4 Phase 2: Enable dynamic mode for Timer tab only (SAFE TESTING)
       // NOW SAFE TO RE-ENABLE - we fixed the duplicate tab switching issue
@@ -82,17 +83,19 @@ class FitnessIntervalTimer {
     }
   }
 
-  // WI-005.4 Phase 2: Safe testing method for Timer tab dynamic loading
+  // WI-005.4 Phase 2-3: Safe testing method for dynamic loading
   testDynamicTimerTab() {
     try {
-      console.log('🧪 TESTING: Enabling smart dynamic mode for Timer tab');
+      console.log('🧪 TESTING: Enabling smart dynamic mode for Timer and Audio tabs');
       this.components.settingsTabManager.enableDynamicForTab('timer');
+      this.components.settingsTabManager.enableDynamicForTab('audio'); // Phase 3: Add Audio tab
       
       // Make test controls globally available for debugging
       window.testDynamicMode = {
         enable: () => {
           this.components.settingsTabManager.enableDynamicForTab('timer');
-          console.log('Dynamic mode enabled for timer tab');
+          this.components.settingsTabManager.enableDynamicForTab('audio');
+          console.log('Dynamic mode enabled for timer and audio tabs');
         },
         disable: () => {
           this.components.settingsTabManager.disableDynamicMode();
@@ -100,21 +103,23 @@ class FitnessIntervalTimer {
         },
         reset: () => {
           this.components.settingsTabManager.resetDynamicTab('timer');
-          console.log('Timer tab reset - will reload on next access');
+          this.components.settingsTabManager.resetDynamicTab('audio');
+          console.log('Timer and Audio tabs reset - will reload on next access');
         },
         status: () => {
           this.components.settingsTabManager.debugState();
-          console.log('🔍 Current mode: Dynamic system active, but using static content if available');
+          console.log('🔍 Current mode: Dynamic system active for Timer and Audio tabs');
         },
         forceReload: () => {
           this.components.settingsTabManager.resetDynamicTab('timer');
+          this.components.settingsTabManager.resetDynamicTab('audio');
           // Switch away and back to trigger reload
-          this.components.settingsTabManager.showTab('audio');
+          this.components.settingsTabManager.showTab('shortcuts');
           setTimeout(() => this.components.settingsTabManager.showTab('timer'), 100);
         }
       };
       
-      console.log('🧪 Smart dynamic mode enabled. Available commands:');
+      console.log('🧪 Smart dynamic mode enabled for Timer and Audio tabs. Available commands:');
       console.log('  window.testDynamicMode.status() - Check current state');
       console.log('  💡 Mode: Will use static content (working buttons) but run through dynamic system');
     } catch (error) {
